@@ -1,9 +1,6 @@
 package api;
 
 
-import generated.STLSheet;
-import jakarta.xml.bind.JAXBException;
-
 import java.io.IOException;
 import java.util.Map;
 

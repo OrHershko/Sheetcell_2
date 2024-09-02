@@ -70,6 +70,7 @@ public class EngineImpl implements Engine {
         currentSheet.setColWidth(currentSTLSheet.getSTLLayout().getSTLSize().getColumnWidthUnits());
         currentSheet.setRowHeight(currentSTLSheet.getSTLLayout().getSTLSize().getRowsHeightUnits());
         currentSheet.setActiveCells(currentSTLSheet.getSTLCells().getSTLCell());
+        currentSheet.setRanges(currentSTLSheet.getSTLRanges());
     }
 
 

@@ -2,11 +2,15 @@ package impl.sheet;
 
 import api.CellValue;
 import generated.STLCell;
+import generated.STLRange;
+import generated.STLRanges;
 import impl.EngineImpl;
+import impl.Range;
 import impl.cell.Cell;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Sheet implements Serializable {
     private String name;
@@ -18,23 +22,37 @@ public class Sheet implements Serializable {
     private int colWidth;
     private int changedCellsCount = 0;
     private final static Map<Integer,Sheet> previousVersions = new HashMap<>();
+    private final Map<String, Range> ranges = new HashMap<>();
 
 
     @Override
     public Sheet clone(){
-        Sheet sheet = new Sheet();
-        sheet.name = name;
-        sheet.version = version;
-        sheet.numOfRows = numOfRows;
-        sheet.numOfCols = numOfCols;
-        sheet.rowHeight = rowHeight;
-        sheet.colWidth = colWidth;
+        Sheet newSheet = new Sheet();
+        newSheet.name = name;
+        newSheet.version = version;
+        newSheet.numOfRows = numOfRows;
+        newSheet.numOfCols = numOfCols;
+        newSheet.rowHeight = rowHeight;
+        newSheet.colWidth = colWidth;
+        cloneActiveCellsMap(newSheet);
+        cloneRangesMap(newSheet);
+        return newSheet;
+    }
+
+    private void cloneActiveCellsMap(Sheet newSheet) {
         for (Map.Entry<String, Cell> entry : activeCells.entrySet()) {
             String copiedKey = entry.getKey();
-            Cell copiedValue = new Cell(sheet, entry.getValue());
-            sheet.activeCells.put(copiedKey, copiedValue);
+            Cell copiedValue = new Cell(newSheet, entry.getValue());
+            newSheet.activeCells.put(copiedKey, copiedValue);
         }
-        return sheet;
+    }
+
+    private void cloneRangesMap(Sheet newSheet) {
+        for (Map.Entry<String, Range> entry : ranges.entrySet()) {
+            String copiedKey = entry.getKey();
+            Range copiedValue = new Range(copiedKey, entry.getValue().getTopLeft(), entry.getValue().getBottomRight(),newSheet);
+            newSheet.ranges.put(copiedKey, copiedValue);
+        }
     }
 
     public int getChangedCellsCount() {
@@ -92,6 +110,7 @@ public class Sheet implements Serializable {
     public String getName() {
         return name;
     }
+
     public void setName(String name){
         this.name = name;
     }
@@ -103,6 +122,7 @@ public class Sheet implements Serializable {
     public int getColWidth() {
         return colWidth;
     }
+
     public void setColWidth(int colWidth) {
         this.colWidth = colWidth;
     }
@@ -110,6 +130,7 @@ public class Sheet implements Serializable {
     public int getRowHeight() {
         return rowHeight;
     }
+
     public void setRowHeight(int rowHeight) {
         this.rowHeight = rowHeight;
     }
@@ -214,6 +235,38 @@ public class Sheet implements Serializable {
         for(Cell cell : updatedCell.getCellsImInfluencing()) {
             changedCellsCount++;
             calculateCellsImInfluencing(cell);
+        }
+    }
+
+    public List<Cell> getCellsInRange(String topLeft, String bottomRight) {
+
+        int topLeftCol = topLeft.charAt(0) - 'A';
+        int topLeftRow = Integer.parseInt(topLeft.substring(1));
+
+        int bottomRightCol = bottomRight.charAt(0) - 'A';
+        int bottomRightRow = Integer.parseInt(bottomRight.substring(1));
+
+        return activeCells.entrySet().stream()
+                .filter(entry -> {
+                    String cellIdentity = entry.getKey();
+                    int col = cellIdentity.charAt(0) - 'A';
+                    int row = Integer.parseInt(cellIdentity.substring(1));
+
+                    return (row >= topLeftRow && row <= bottomRightRow) &&
+                            (col >= topLeftCol && col <= bottomRightCol);
+                })
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+    }
+
+    public void addRange(Range range) {
+        ranges.put(range.getName(), range);
+    }
+
+    public void setRanges(STLRanges stlRanges) {
+
+        for(STLRange stlRange: stlRanges.getSTLRange()){
+            ranges.put(stlRange.getName(),new Range(stlRange.getName(),stlRange.getSTLBoundaries().getFrom(),stlRange.getSTLBoundaries().getTo(),this));
         }
     }
 }
