@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane prefHeight="30.0" prefWidth="386.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane prefHeight="30.0" prefWidth="386.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.loadfile.LoadFileController">
    <columnConstraints>
       <ColumnConstraints hgrow="NEVER" maxWidth="20.0" minWidth="10.0" prefWidth="20.0" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" />
@@ -18,7 +18,7 @@
       <RowConstraints vgrow="SOMETIMES" />
    </rowConstraints>
    <children>
-      <TextField editable="false" prefHeight="25.0" prefWidth="500.0" GridPane.columnIndex="3" />
-      <Button mnemonicParsing="false" text="Load File" GridPane.columnIndex="1" />
+      <TextField fx:id="filePath" editable="false" prefHeight="25.0" prefWidth="500.0" GridPane.columnIndex="3" />
+      <Button fx:id="loadFileButton" mnemonicParsing="false" onMouseClicked="#loadXmlFile" text="Load File" GridPane.columnIndex="1" />
    </children>
 </GridPane>
