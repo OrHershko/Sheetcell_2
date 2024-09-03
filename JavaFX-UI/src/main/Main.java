@@ -4,23 +4,26 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.net.URL;
 
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("App.fxml"));
+    public void start(Stage primaryStage) throws IOException {
 
-            Scene scene = new Scene(root);
-            primaryStage.setTitle("Shticell");
-            primaryStage.setScene(scene);
-            primaryStage.show();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        URL location = getClass().getResource("App.fxml");
+        fxmlLoader.setLocation(location);
+        Parent root = fxmlLoader.load(location.openStream());
+
+        Scene scene = new Scene(root);
+        primaryStage.setTitle("Shticell");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     public static void main(String[] args) {

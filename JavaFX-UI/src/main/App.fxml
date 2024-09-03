@@ -21,14 +21,19 @@
                <children>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <fx:include maxWidth="-Infinity" source="../components/loadfile/LoadFile.fxml" />
-                        <fx:include maxWidth="-Infinity" source="../components/versions/VersionsSelector.fxml" />
+                        <fx:include fx:id="loadFileComponent" source="../components/loadfile/LoadFile.fxml" />
                      </children>
                   </HBox>
-                  <fx:include maxWidth="-Infinity" source="../components/actionline/ActionLine.fxml" />
+                  <fx:include source="../components/actionline/ActionLine.fxml" />
                </children>
             </VBox>
          </left>
       </BorderPane>
    </top>
+   <left>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
+   </left>
+    <center>
+        <fx:include fx:id="mainGridComponent" source="../components/maingrid/MainGrid.fxml" />
+    </center>
 </BorderPane>

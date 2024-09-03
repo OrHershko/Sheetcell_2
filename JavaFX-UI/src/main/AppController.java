@@ -1,26 +1,54 @@
 package main;
 
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 
+import api.Engine;
+import components.loadfile.LoadFileController;
+import components.maingrid.MainGridController;
+import dto.DTOFactoryImpl;
+import dto.SheetDTO;
+import impl.EngineImpl;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import java.io.File;
 import java.io.IOException;
+import javafx.scene.control.ScrollPane;
+
 
 public class AppController {
 
     @FXML
-    private BorderPane rootPane;  // שורש ה-FXML שלך, כנראה BorderPane מבוסס על התמונה ו-FXML שסיפקת
+    private BorderPane rootPane;
 
     @FXML
-    private HBox hboxContainer; // HBox שמכיל את LoadFile.fxml ו-VersionsSelector.fxml
+    private HBox hboxContainer;
+
+    @FXML
+    private GridPane loadFileComponent;
+
+    @FXML
+    private LoadFileController loadFileComponentController;
+
+    @FXML
+    private ScrollPane mainGridComponent;
+
+    @FXML
+    private MainGridController mainGridComponentController;
+
+    private final Engine engine = new EngineImpl(new DTOFactoryImpl());
 
     @FXML
     public void initialize() {
-        // הטעינה של ה-LoadFile.fxml ו-VersionsSelector.fxml נעשתה כבר דרך ה-`fx:include`
-        // כאן אפשר לבצע אינטראקציות או לוודא שהכל נטען כראוי
+        loadFileComponentController.setAppController(this);
+        mainGridComponentController.setAppController(this);
+    }
 
-        // אפשרות לטפל באינטראקציות בין ה-Controllers של הקומפוננטות השונות
-        // לדוגמה: loadFileController.setAppController(this);
+    public void loadFileToEngine(File selectedFile) throws IOException {
+        engine.loadFile(selectedFile.getAbsolutePath());
+        Platform.runLater(() -> {
+            mainGridComponentController.buildGridBoundaries((SheetDTO) engine.getSheetDTO());
+        });
     }
 }

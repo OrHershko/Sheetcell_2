@@ -240,16 +240,18 @@ public class Sheet implements Serializable {
 
     public List<Cell> getCellsInRange(String topLeft, String bottomRight) {
 
-        int topLeftCol = topLeft.charAt(0) - 'A';
+        int topLeftCol = topLeft.charAt(0) - 'A' + 1;
         int topLeftRow = Integer.parseInt(topLeft.substring(1));
 
-        int bottomRightCol = bottomRight.charAt(0) - 'A';
+        int bottomRightCol = bottomRight.charAt(0) - 'A' + 1;
         int bottomRightRow = Integer.parseInt(bottomRight.substring(1));
+
+        checkIfRangeInBoundaries(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
 
         return activeCells.entrySet().stream()
                 .filter(entry -> {
                     String cellIdentity = entry.getKey();
-                    int col = cellIdentity.charAt(0) - 'A';
+                    int col = cellIdentity.charAt(0) - 'A' + 1;
                     int row = Integer.parseInt(cellIdentity.substring(1));
 
                     return (row >= topLeftRow && row <= bottomRightRow) &&
@@ -259,6 +261,13 @@ public class Sheet implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    private void checkIfRangeInBoundaries(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol) {
+        if(topLeftRow > numOfRows || topLeftCol > numOfCols || bottomRightRow > numOfRows || bottomRightCol > numOfCols
+           || topLeftCol <= 0 || bottomRightCol <= 0 || topLeftRow <= 0 || bottomRightRow <= 0){
+            throw new RuntimeException("Error: A defined range falls outside the sheet boundaries. Please ensure all ranges are within the valid sheet area.");
+        }
+    }
+
     public void addRange(Range range) {
         ranges.put(range.getName(), range);
     }
@@ -266,6 +275,10 @@ public class Sheet implements Serializable {
     public void setRanges(STLRanges stlRanges) {
 
         for(STLRange stlRange: stlRanges.getSTLRange()){
+            if(ranges.containsKey(stlRange.getName()))
+            {
+                throw new RuntimeException("Error: At least two ranges have been found with the same name. Each range must have a unique identifier.");
+            }
             ranges.put(stlRange.getName(),new Range(stlRange.getName(),stlRange.getSTLBoundaries().getFrom(),stlRange.getSTLBoundaries().getTo(),this));
         }
     }
