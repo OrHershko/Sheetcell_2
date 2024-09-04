@@ -18,11 +18,11 @@ public class CellDTO implements DTO {
 
 
 
-    public CellDTO(){
+    public CellDTO(String identity){
         this.version = 0;
         this.effectiveValue = new StringValue("");
         this.originalValue = "";
-        this.identity = "";
+        this.identity = identity;
         cellsImInfluencing = new HashSet<>();
         cellsImDependentOn = new HashSet<>();
     }

@@ -131,7 +131,7 @@ public class EngineImpl implements Engine {
         checkForLoadedFile();
         Cell currentCell = currentSheet.getCell(cellIdentity);
         if(currentCell == null)
-            return DTOFactory.createEmptyCellDTO();
+            return DTOFactory.createEmptyCellDTO(cellIdentity);
         return DTOFactory.createCellDTO(currentSheet.getCell(cellIdentity));
     }
 

@@ -7,7 +7,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
 <ScrollPane fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.AppController">
    <content>
       <BorderPane maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
@@ -28,7 +27,7 @@
                               <fx:include fx:id="loadFileComponent" source="../components/loadfile/LoadFile.fxml" />
                            </children>
                         </HBox>
-                        <fx:include source="../components/actionline/ActionLine.fxml" />
+                        <fx:include fx:id="actionLineComponent" source="../components/actionline/ActionLine.fxml" />
                      </children>
                   </VBox>
                </left>

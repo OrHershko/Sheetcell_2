@@ -17,7 +17,7 @@ public class DTOFactoryImpl implements DTOFactory {
     }
 
     @Override
-    public DTO createEmptyCellDTO() {
-        return new CellDTO();
+    public DTO createEmptyCellDTO(String identity) {
+        return new CellDTO(identity);
     }
 }

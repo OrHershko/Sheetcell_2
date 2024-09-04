@@ -49,17 +49,20 @@ public class MainGridController {
     public void createInnerCellsInGrid(SheetDTO sheetDTO) throws IOException {
         for(CellDTO cellDTO : sheetDTO.getActiveCells().values())
         {
-            cellComponentControllers.get(cellDTO.getIdentity()).setEffectiveValue(cellDTO.getEffectiveValue().getEffectiveValue().toString());
+            CellComponentController cell = cellComponentControllers.get(cellDTO.getIdentity());
+            cell.setEffectiveValue(cellDTO.getEffectiveValue().getEffectiveValue().toString());
+            cell.setCell(cellDTO);
         }
     }
 
-    private CellComponentController createCell(String effectiveValue, int row, int column, boolean isBorder) throws IOException {
+    private CellComponentController createCell(String effectiveValue, int row, int column, boolean isDisable) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainGridController.class.getResource("/components/maingrid/cell/CellComponent.fxml"));
         Node newCell = loader.load();
-        newCell.setDisable(isBorder);
+        newCell.setDisable(isDisable);
         CellComponentController cellComponentController = loader.getController();
         cellComponentController.setEffectiveValue(effectiveValue);
+        cellComponentController.setAppController(appController);
         GridPane.setColumnIndex(newCell, column + 1);
         GridPane.setRowIndex(newCell, row + 1);
         mainGrid.getChildren().add(newCell);
@@ -128,7 +131,9 @@ public class MainGridController {
         for (int row = 1; row <= numOfRows; row++) {
             for (int col = 1; col <= numOfCols; col++) {
                 String identity = String.format("%c", col + 'A' - 1) + row;
-                cellComponentControllers.put(identity,createCell("", row, col, false));
+                CellComponentController cellComponentController = createCell("", row, col, false);
+                cellComponentController.setCell(new CellDTO(identity));
+                cellComponentControllers.put(identity, cellComponentController);
             }
         }
     }
