@@ -49,8 +49,7 @@ public class MainGridController {
     public void createInnerCellsInGrid(SheetDTO sheetDTO) throws IOException {
         for(CellDTO cellDTO : sheetDTO.getActiveCells().values())
         {
-            cellComponentControllers.put(cellDTO.getIdentity(), createCell(cellDTO.getEffectiveValue().getEffectiveValue().toString(),
-                    cellDTO.getRowNumberFromCellId(),cellDTO.getColumnNumberFromCellId(), false));
+            cellComponentControllers.get(cellDTO.getIdentity()).setEffectiveValue(cellDTO.getEffectiveValue().getEffectiveValue().toString());
         }
     }
 
@@ -64,6 +63,13 @@ public class MainGridController {
         GridPane.setColumnIndex(newCell, column + 1);
         GridPane.setRowIndex(newCell, row + 1);
         mainGrid.getChildren().add(newCell);
+
+        newCell.getStyleClass().add("grid-cell");
+
+        if (row == 0 || column == 0 || row == mainGrid.getRowCount() + 1 || column == mainGrid.getColumnCount() + 1) {
+            newCell.getStyleClass().add("edge");
+        }
+
         return cellComponentController;
     }
 
@@ -78,19 +84,19 @@ public class MainGridController {
         return cellId.charAt(0) - 'A'; // לדוגמה "A1" -> 0, "B2" -> 1
     }
 
-    public void createDynamicGrid(SheetDTO sheetDTO) {
+    public void createDynamicGrid(SheetDTO sheetDTO) throws IOException {
         mainGrid.getColumnConstraints().clear();
         mainGrid.getRowConstraints().clear();
 
         int numOfRows = sheetDTO.getNumOfRows();
         int numOfCols = sheetDTO.getNumOfCols();
 
-        for (int col = 0; col <= numOfCols + 1 ; col++) {
+        for (int col = 0; col <= numOfCols + 2 ; col++) {
             ColumnConstraints colConstraints = new ColumnConstraints();
             colConstraints.setPrefWidth(Region.USE_COMPUTED_SIZE);
             colConstraints.setMaxWidth(Double.MAX_VALUE);
 
-            if (col == 0 || col == numOfCols + 1) {
+            if (col == 0 || col == numOfCols + 2) {
 
                 colConstraints.setHgrow(Priority.ALWAYS);
                 colConstraints.setMinWidth(40.0);
@@ -103,20 +109,27 @@ public class MainGridController {
         }
 
 
-        for (int row = 0; row <= numOfRows + 1 ; row++) {
+        for (int row = 0; row <= numOfRows + 2 ; row++) {
             RowConstraints rowConstraints = new RowConstraints();
             rowConstraints.setPrefHeight(Region.USE_COMPUTED_SIZE);
             rowConstraints.setMaxHeight(Double.MAX_VALUE);
             rowConstraints.setMinHeight(40.0);
 
 
-            if (row == 0 || row == numOfRows + 1) {
+            if (row == 0 || row == numOfRows + 2) {
                 rowConstraints.setVgrow(Priority.ALWAYS);
             } else {
                 rowConstraints.setVgrow(Priority.NEVER);
             }
 
             mainGrid.getRowConstraints().add(rowConstraints);
+        }
+
+        for (int row = 1; row <= numOfRows; row++) {
+            for (int col = 1; col <= numOfCols; col++) {
+                String identity = String.format("%c", col + 'A' - 1) + row;
+                cellComponentControllers.put(identity,createCell("", row, col, false));
+            }
         }
     }
 
