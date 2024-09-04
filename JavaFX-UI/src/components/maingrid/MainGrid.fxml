@@ -1,41 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
 
-<ScrollPane fx:id="mainGridComponent" fitToHeight="true" fitToWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.maingrid.MainGridController">
-   <content>
-      <GridPane alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity">
-        <columnConstraints>
-            <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="40.0" />
-            <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="40.0" minWidth="40.0" prefWidth="100.0" />
-            <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="50.0" prefWidth="100.0" />
-            <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="50.0" prefWidth="100.0" />
-          <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="50.0" prefWidth="100.0" />
-          <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="50.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="40.0" />
-        </columnConstraints>
-        <rowConstraints>
-            <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="ALWAYS" />
-            <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
-          <RowConstraints minHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
-          <RowConstraints minHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
-          <RowConstraints minHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
-            <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="ALWAYS" />
-        </rowConstraints>
-         <children>
-            <Label text="A" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <Label text="B" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-            <Label text="C" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-            <Label text="D" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-            <Label text="1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label text="2" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label text="3" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-         </children>
-      </GridPane>
-   </content>
-</ScrollPane>
+<GridPane fx:id="mainGrid" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.maingrid.MainGridController">
+  <columnConstraints>
+      <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="40.0" />
+      <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="75.0" />
+      <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="75.0" />
+      <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="75.0" />
+    <ColumnConstraints halignment="LEFT" hgrow="NEVER" maxWidth="-Infinity" minWidth="75.0" />
+    <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="75.0" />
+      <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="40.0" />
+  </columnConstraints>
+  <rowConstraints>
+      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="ALWAYS" />
+      <RowConstraints maxHeight="-Infinity" minHeight="40.0" vgrow="NEVER" />
+    <RowConstraints maxHeight="-Infinity" minHeight="40.0" vgrow="NEVER" />
+    <RowConstraints maxHeight="-Infinity" minHeight="40.0" vgrow="NEVER" />
+    <RowConstraints maxHeight="-Infinity" minHeight="40.0" vgrow="NEVER" />
+      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="ALWAYS" />
+  </rowConstraints>
+</GridPane>

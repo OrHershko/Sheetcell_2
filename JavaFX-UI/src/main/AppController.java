@@ -32,10 +32,11 @@ public class AppController {
     private LoadFileController loadFileComponentController;
 
     @FXML
-    private ScrollPane mainGridComponent;
+    private GridPane mainGridComponent;
 
     @FXML
     private MainGridController mainGridComponentController;
+
 
     private final Engine engine = new EngineImpl(new DTOFactoryImpl());
 
@@ -48,7 +49,11 @@ public class AppController {
     public void loadFileToEngine(File selectedFile) throws IOException {
         engine.loadFile(selectedFile.getAbsolutePath());
         Platform.runLater(() -> {
-            mainGridComponentController.buildGridBoundaries((SheetDTO) engine.getSheetDTO());
+            try {
+                mainGridComponentController.buildGridBoundaries((SheetDTO) engine.getSheetDTO());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 }

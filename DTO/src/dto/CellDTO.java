@@ -11,14 +11,16 @@ import java.util.stream.Collectors;
 public class CellDTO implements DTO {
     private final String identity;
     private final int version;
-    private final CellValue value;
+    private final CellValue effectiveValue;
     private final String originalValue;
     private final Set<String> cellsImInfluencing;
     private final Set<String> cellsImDependentOn;
 
+
+
     public CellDTO(){
         this.version = 0;
-        this.value = new StringValue("");
+        this.effectiveValue = new StringValue("");
         this.originalValue = "";
         this.identity = "";
         cellsImInfluencing = new HashSet<>();
@@ -28,20 +30,28 @@ public class CellDTO implements DTO {
     public CellDTO(Cell cell) {
         identity = cell.getIdentity();
         version = cell.getVersion();
-        value = cell.getEffectiveValue();
+        effectiveValue = cell.getEffectiveValue();
         originalValue = cell.getOriginalValue();
         cellsImInfluencing = cell.getCellsImInfluencing().stream().map(Cell::getIdentity).collect(Collectors.toSet());
         cellsImDependentOn = cell.getCellsImDependentOn().stream().map(Cell::getIdentity).collect(Collectors.toSet());
     }
 
+    public int getRowNumberFromCellId() {
+        String rowPart = identity.substring(1);
+        return Integer.parseInt(rowPart);
+    }
 
+    public int getColumnNumberFromCellId() {
+        char columnChar = identity.charAt(0);
+        return columnChar - 'A' + 1;
+    }
 
     public int getVersion() {
         return version;
     }
 
-    public CellValue getValue() {
-        return value;
+    public CellValue getEffectiveValue() {
+        return effectiveValue;
     }
 
     public String getOriginalValue() {

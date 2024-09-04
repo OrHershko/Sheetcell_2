@@ -1,14 +1,17 @@
 package components.maingrid;
 
+import components.maingrid.cell.CellComponentController;
+import dto.CellDTO;
 import dto.SheetDTO;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 import main.AppController;
+
+import java.io.IOException;
 
 public class MainGridController {
 
@@ -21,67 +24,41 @@ public class MainGridController {
         this.appController = appController;
     }
 
-    public void buildGridBoundaries(SheetDTO sheetDTO) {
-        // מחיקת תוכן קיים ב-GridPane אם יש כזה
-        mainGrid.getChildren().clear();
-        mainGrid.getColumnConstraints().clear();
-        mainGrid.getRowConstraints().clear();
+    public void buildGridBoundaries(SheetDTO sheetDTO) throws IOException {
 
-        // קבלת מספר השורות והעמודות מ-SheetDTO
-        int numRows = sheetDTO.getNumOfRows();
-        int numCols = sheetDTO.getNumOfCols();
+        int numOfRows = sheetDTO.getNumOfRows();
+        int numOfCols = sheetDTO.getNumOfCols();
 
-        // הגדרת עמודות עם מאפיינים דינאמיים
-        for (int i = 0; i <= numCols + 1; i++) { // הוספת עמודות קצה נוספות
-            ColumnConstraints colConst = new ColumnConstraints();
-            colConst.setMinWidth(50);
-            colConst.setPrefWidth(100);
-            if (i == 0 || i == numCols + 1) {
-                colConst.setHgrow(Priority.ALWAYS); // העמודות הראשונות והאחרונות יתמתחו
-            }
-            mainGrid.getColumnConstraints().add(colConst);
+        createCell("",0,0);
+
+        for (int i = 1; i <= numOfRows; i++) {
+            String row = String.format("%02d", i);
+            createCell(row, i,0);
         }
 
-        // הגדרת שורות עם מאפיינים דינאמיים
-        for (int i = 0; i <= numRows + 1; i++) { // הוספת שורות קצה נוספות
-            RowConstraints rowConst = new RowConstraints();
-            rowConst.setMinHeight(30);
-            rowConst.setPrefHeight(40);
-            if (i == 0 || i == numRows + 1) {
-                rowConst.setVgrow(Priority.ALWAYS); // השורות הראשונות והאחרונות יתמתחו
-            }
-            mainGrid.getRowConstraints().add(rowConst);
+        for (int i = 1; i <= numOfCols; i++) {
+            String col = String.format("%c", i - 1 + 'A');
+            createCell(col, 0, i);
         }
 
-        // יצירת תוויות לעמודות (A, B, C וכו')
-        for (int col = 1; col <= numCols; col++) {
-            String columnName = String.valueOf((char) ('A' + col - 1));
-            Label columnHeader = new Label(columnName);
-            columnHeader.setStyle("-fx-font-weight: bold; -fx-border-color: black; -fx-border-width: 1;");
-            columnHeader.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-            columnHeader.setAlignment(javafx.geometry.Pos.CENTER);
-            mainGrid.add(columnHeader, col, 1); // מיקום התווית בעמודה col ושורה 1
+
+        for(CellDTO cellDTO : sheetDTO.getActiveCells().values())
+        {
+            createCell(cellDTO.getEffectiveValue().getEffectiveValue().toString(),cellDTO.getRowNumberFromCellId(),cellDTO.getColumnNumberFromCellId());
         }
 
-        // יצירת תוויות לשורות (1, 2, 3 וכו')
-        for (int row = 1; row <= numRows; row++) {
-            String rowNumber = String.format("%02d", row);
-            Label rowHeader = new Label(rowNumber);
-            rowHeader.setStyle("-fx-font-weight: bold; -fx-border-color: black; -fx-border-width: 1;");
-            rowHeader.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-            rowHeader.setAlignment(javafx.geometry.Pos.CENTER);
-            mainGrid.add(rowHeader, 1, row + 1); // מיקום התווית בשורה row ועמודה 1
-        }
 
-        // יצירת תאים ריקים
-        for (int row = 1; row <= numRows; row++) {
-            for (int col = 1; col <= numCols; col++) {
-                Label cell = new Label();
-                cell.setStyle("-fx-border-color: black; -fx-border-width: 1;");
-                cell.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-                mainGrid.add(cell, col, row + 1);
-            }
-        }
+    }
+
+    private void createCell(String effectiveValue, int row, int column) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(MainGridController.class.getResource("/components/maingrid/cell/CellComponent.fxml"));
+        Node newCell = loader.load();
+        CellComponentController cellComponentController = loader.getController();
+        cellComponentController.setEffectiveValue(effectiveValue);
+        GridPane.setColumnIndex(newCell, column + 1);
+        GridPane.setRowIndex(newCell, row + 1);
+        mainGrid.getChildren().add(newCell);
     }
 
 

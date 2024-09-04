@@ -233,7 +233,7 @@ Welcome to the Sheetcell!
         StringBuilder sb = new StringBuilder();
         CellDTO cellDTO = (CellDTO) engine.getCellDTO(cellIdentity);
         sb.append("Cell Identity: ").append(cellIdentity).append("\n");
-        sb.append("Effective Value: ").append(cellDTO.getValue().getEffectiveValue()).append("\n");
+        sb.append("Effective Value: ").append(cellDTO.getEffectiveValue().getEffectiveValue()).append("\n");
         sb.append("Original Value: ").append(cellDTO.getOriginalValue());
         return sb.toString();
     }
@@ -336,7 +336,7 @@ Please select an option by entering its corresponding number from the menu below
     private String createCellValueToPrint(String cellIdentity, SheetDTO sheetDTO) {
         String cellValue = " ";
         if(sheetDTO.getActiveCells().get(cellIdentity) != null){
-            cellValue = sheetDTO.getActiveCells().get(cellIdentity).getValue().getEffectiveValue().toString();
+            cellValue = sheetDTO.getActiveCells().get(cellIdentity).getEffectiveValue().getEffectiveValue().toString();
         }
         return cellValue;
     }
