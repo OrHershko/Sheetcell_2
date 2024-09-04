@@ -50,7 +50,9 @@ public class AppController {
         engine.loadFile(selectedFile.getAbsolutePath());
         Platform.runLater(() -> {
             try {
+                mainGridComponentController.createDynamicGrid((SheetDTO) engine.getSheetDTO());
                 mainGridComponentController.buildGridBoundaries((SheetDTO) engine.getSheetDTO());
+                mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
