@@ -14,4 +14,6 @@ public interface Engine {
     Map<Integer,DTO> getSheetsPreviousVersionsDTO();
     void saveSheetToFile(String filePath) throws IOException;
     void loadPreviousSheetFromFile(String filePath) throws IOException, ClassNotFoundException;
+    void setNewRowsWidth(int width);
+    void setNewColsWidth(int width);
 }

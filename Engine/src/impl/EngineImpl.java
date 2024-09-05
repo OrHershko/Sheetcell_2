@@ -252,4 +252,14 @@ public class EngineImpl implements Engine {
             throw new ClassNotFoundException("Error: File failed to load from: " + filePath + ". Please make sure that the file is in the correct format.");
         }
     }
+
+    @Override
+    public void setNewRowsWidth(int width) {
+        currentSheet.setRowHeight(width);
+    }
+
+    @Override
+    public void setNewColsWidth(int width) {
+        currentSheet.setColWidth(width);
+    }
 }

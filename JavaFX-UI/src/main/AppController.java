@@ -4,6 +4,7 @@ package main;
 import api.CellValue;
 import api.Engine;
 import components.actionline.ActionLineController;
+import components.commands.CommandsComponentController;
 import components.loadfile.LoadFileController;
 import components.maingrid.MainGridController;
 import dto.CellDTO;
@@ -13,9 +14,12 @@ import impl.EngineImpl;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
@@ -50,6 +54,12 @@ public class AppController {
     @FXML
     private ActionLineController actionLineComponentController;
 
+    @FXML
+    private VBox commandsComponent;
+
+    @FXML
+    private CommandsComponentController commandsComponentController;
+
 
     private final Engine engine = new EngineImpl(new DTOFactoryImpl());
 
@@ -58,6 +68,7 @@ public class AppController {
         loadFileComponentController.setAppController(this);
         mainGridComponentController.setAppController(this);
         actionLineComponentController.setAppController(this);
+        commandsComponentController.setAppController(this);
     }
 
     public void loadFileToEngine(File selectedFile) throws IOException {
@@ -67,6 +78,7 @@ public class AppController {
                 mainGridComponentController.createDynamicGrid((SheetDTO) engine.getSheetDTO());
                 mainGridComponentController.buildGridBoundaries((SheetDTO) engine.getSheetDTO());
                 mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
+                commandsComponentController.disableButtons(false);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -106,7 +118,15 @@ public class AppController {
             }
 
         }
+    }
 
+    // פונקציה להצגת הודעת שגיאה
+    public static void showErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public double getPrefRowHeight() {
@@ -115,5 +135,15 @@ public class AppController {
 
     public double getPrefColWidth() {
         return ((SheetDTO)engine.getSheetDTO()).getColWidth();
+    }
+
+    public void changeRowsWidth(int width) {
+        engine.setNewRowsWidth(width);
+        mainGridComponentController.updateRowsConstraints(width);
+    }
+
+    public void changeColsWidth(int width) {
+        engine.setNewColsWidth(width);
+        mainGridComponentController.updateColsConstraints(width);
     }
 }

@@ -143,4 +143,32 @@ public class MainGridController {
     public void activateMouseClickedOfCell(String selectedCellId) {
         cellComponentControllers.get(selectedCellId).onMouseClicked();
     }
+
+    public void updateRowsConstraints(int width) {
+        int rowCount = mainGrid.getRowConstraints().size();
+
+        for (int i = 0; i < rowCount; i++) {
+
+            if (i == 0 || i == rowCount - 1) {
+                continue;
+            }
+
+            RowConstraints rowConstraints = mainGrid.getRowConstraints().get(i);
+            rowConstraints.setPrefHeight(width);
+        }
+    }
+
+    public void updateColsConstraints(int width) {
+        int colCount = mainGrid.getColumnConstraints().size();
+
+        for (int i = 0; i < colCount; i++) {
+
+            if (i == 0 || i == colCount - 1) {
+                continue;
+            }
+
+            ColumnConstraints columnConstraints = mainGrid.getColumnConstraints().get(i);
+            columnConstraints.setPrefWidth(width);
+        }
+    }
 }
