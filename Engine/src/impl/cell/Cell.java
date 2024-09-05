@@ -22,8 +22,8 @@ public class Cell implements Serializable {
         this.identity = identity;
     }
 
-    public Cell(Sheet sheet, Cell cellToCopy) {
-        mySheet = sheet;
+    public Cell(Sheet newSheet, Cell cellToCopy) {
+        mySheet = newSheet;
         this.identity = cellToCopy.getIdentity();
         effectiveValue = cellToCopy.getEffectiveValue().clone();
         effectiveValue.setActivatingCell(this);
@@ -78,5 +78,21 @@ public class Cell implements Serializable {
     public void clearDependenciesLists() {
         cellsImInfluencing.clear();
         cellsImDependentOn.clear();
+    }
+
+    public static int getColumnFromCellID(String cellID) {
+        return cellID.charAt(0) - 'A' + 1;
+    }
+
+    public static int getRowFromCellID(String cellID) {
+        return Integer.parseInt(cellID.substring(1));
+    }
+
+    public void setCellsImDependentOn(Set<Cell> cellsImDependentOn) {
+        this.cellsImDependentOn = cellsImDependentOn;
+    }
+
+    public void setCellsImInfluencing(Set<Cell> cellsImInfluencing) {
+        this.cellsImInfluencing = cellsImInfluencing;
     }
 }

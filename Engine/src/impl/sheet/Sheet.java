@@ -45,6 +45,26 @@ public class Sheet implements Serializable {
             Cell copiedValue = new Cell(newSheet, entry.getValue());
             newSheet.activeCells.put(copiedKey, copiedValue);
         }
+
+        for (Map.Entry<String, Cell> entry : newSheet.activeCells.entrySet()) {
+            Cell newCell = entry.getValue();
+            Set<Cell> newDependencyList = new HashSet<>();
+            for(Cell cell : newCell.getCellsImInfluencing())
+            {
+                newDependencyList.add(newSheet.activeCells.get(cell.getIdentity()));
+            }
+            newCell.setCellsImInfluencing(newDependencyList);
+        }
+
+        for (Map.Entry<String, Cell> entry : newSheet.activeCells.entrySet()) {
+            Cell newCell = entry.getValue();
+            Set<Cell> newDependencyList = new HashSet<>();
+            for(Cell cell : newCell.getCellsImDependentOn())
+            {
+                newDependencyList.add(newSheet.activeCells.get(cell.getIdentity()));
+            }
+            newCell.setCellsImDependentOn(newDependencyList);
+        }
     }
 
     private void cloneRangesMap(Sheet newSheet) {

@@ -36,15 +36,6 @@ public class CellDTO implements DTO {
         cellsImDependentOn = cell.getCellsImDependentOn().stream().map(Cell::getIdentity).collect(Collectors.toSet());
     }
 
-    public int getRowNumberFromCellId() {
-        String rowPart = identity.substring(1);
-        return Integer.parseInt(rowPart);
-    }
-
-    public int getColumnNumberFromCellId() {
-        char columnChar = identity.charAt(0);
-        return columnChar - 'A' + 1;
-    }
 
     public int getVersion() {
         return version;

@@ -12,13 +12,16 @@ import dto.SheetDTO;
 import impl.EngineImpl;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import java.io.File;
 import java.io.IOException;
-import javafx.scene.control.ScrollPane;
+import java.util.Set;
+
+import static impl.cell.Cell.getColumnFromCellID;
+import static impl.cell.Cell.getRowFromCellID;
 
 
 public class AppController {
@@ -79,6 +82,38 @@ public class AppController {
         CellValue newCellValue = EngineImpl.convertStringToCellValue(orgValue);
         engine.updateCellValue(selectedCellId, newCellValue, orgValue);
         mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
-        actionLineComponentController.displayCellData((CellDTO) engine.getCellDTO(selectedCellId));
+        mainGridComponentController.activateMouseClickedOfCell(selectedCellId);
+
+    }
+
+    public void colorDependencies(Set<String> cells, String styleClass) {
+
+        for (Node node : mainGridComponent.getChildren()) {
+            node.getStyleClass().remove(styleClass);
+        }
+
+
+        for (String cellID : cells) {
+            int column = getColumnFromCellID(cellID) + 1;
+            int row = getRowFromCellID(cellID) + 1;
+
+            for (Node node : mainGridComponent.getChildren()) {
+                if (GridPane.getColumnIndex(node) == column && GridPane.getRowIndex(node) == row) {
+
+                    node.getStyleClass().add(styleClass);
+                    break;
+                }
+            }
+
+        }
+
+    }
+
+    public double getPrefRowHeight() {
+        return ((SheetDTO)engine.getSheetDTO()).getRowHeight();
+    }
+
+    public double getPrefColWidth() {
+        return ((SheetDTO)engine.getSheetDTO()).getColWidth();
     }
 }

@@ -15,6 +15,11 @@ public class CellComponentController {
 
     private AppController appController;
 
+    public void setCellSize(){
+        effectiveValue.setMinHeight(appController.getPrefRowHeight());
+        effectiveValue.setMinWidth(appController.getPrefColWidth());
+    }
+
     public Label getEffectiveValue() {
         return effectiveValue;
     }
@@ -32,8 +37,12 @@ public class CellComponentController {
     }
 
     @FXML
-    public void showCellOnActionLine() {
+    public void onMouseClicked() {
         appController.displayCellDataOnActionLine(cell);
+        appController.colorDependencies(cell.getCellsImDependentOn(),"DependentOn");
+        appController.colorDependencies(cell.getCellsImInfluencing(),"Influencing");
     }
+
+
 }
 
