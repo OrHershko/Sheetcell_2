@@ -1,10 +1,13 @@
 package components.commands;
 
+import components.maingrid.cell.CellComponentController;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import main.AppController;
 
 import java.util.Optional;
@@ -20,6 +23,9 @@ public class CommandsComponentController {
 
     @FXML
     private Button setColAlignmentButton;
+
+    @FXML
+    private Button designCell;
 
     private AppController appController;
 
@@ -40,6 +46,100 @@ public class CommandsComponentController {
         setColAlignmentButton.setDisable(disable);
     }
 
+    @FXML
+    public void designCellOnClick() {
+        Optional<String> result = getCellIDFromUser();
+
+        if (result.isPresent()) {
+            String cellId = result.get().toUpperCase(); // מקבל את שם התא
+
+            // קבלת CellComponentController מה-AppController
+            CellComponentController cell = appController.getCellControllerById(cellId);
+
+            if (cell != null) {
+                // אם התא קיים, הצגת פופ-אפ לבחירת צבעים
+                Stage styleStage = new Stage();
+                styleStage.setTitle("Set Style for Cell " + cellId);
+
+                // יצירת ColorPickers עבור צבע רקע וצבע טקסט
+                ColorPicker backgroundColorPicker = new ColorPicker();
+                ColorPicker textColorPicker = new ColorPicker();
+
+                Button applyButton = createApplyButton(backgroundColorPicker, cell, textColorPicker, styleStage);
+                Button resetButton = createResetButton(cell, styleStage);
+
+                // הוספת כל הרכיבים לפריסת VBox
+                VBox vbox = new VBox(10);
+                vbox.getChildren().addAll(new Label("Background Color:"), backgroundColorPicker,
+                        new Label("Text Color:"), textColorPicker,
+                        applyButton, resetButton);
+
+                // הגדרת הפריסה של החלון
+                Scene scene = new Scene(vbox, 300, 200);
+                styleStage.setScene(scene);
+
+                // הגדרת החלון כמודאלי (modal)
+                styleStage.initModality(Modality.APPLICATION_MODAL);
+
+                // הצגת הפופ-אפ
+                styleStage.showAndWait();
+            }
+            else {
+                AppController.showErrorDialog("Error", "The cell ID you entered does not exist.");
+            }
+        }
+    }
+
+    private static Button createResetButton(CellComponentController cell, Stage styleStage) {
+        // כפתור לאיפוס הסגנון של התא
+        Button resetButton = new Button("Reset Cell Style");
+        resetButton.setOnAction(event -> {
+            cell.getCellLabel().setStyle(""); // איפוס העיצוב
+            styleStage.close();
+        });
+        return resetButton;
+    }
+
+    private Button createApplyButton(ColorPicker backgroundColorPicker, CellComponentController cell, ColorPicker textColorPicker, Stage styleStage) {
+        // כפתור להחלת צבעים
+        Button applyButton = new Button("Apply Colors");
+        applyButton.setOnAction(event -> {
+            // קביעת צבע רקע
+            String backgroundColor = toRgbString(backgroundColorPicker.getValue());
+            cell.getCellLabel().setStyle("-fx-background-color: " + backgroundColor + ";");
+
+            // קביעת צבע טקסט
+            String textColor = toRgbString(textColorPicker.getValue());
+            cell.getCellLabel().setStyle(cell.getCellLabel().getStyle() + "-fx-text-fill: " + textColor + ";");
+
+            // סגירת החלון
+            styleStage.close();
+        });
+        return applyButton;
+    }
+
+    private static Optional<String> getCellIDFromUser() {
+        // יצירת חלון פופ-אפ חדש
+        Stage popupStage = new Stage();
+        popupStage.setTitle("Select Cell and Set Style");
+
+        // בקשת הזנת שם התא (למשל "A1")
+        TextInputDialog inputDialog = new TextInputDialog();
+        inputDialog.setTitle("Select Cell");
+        inputDialog.setHeaderText("Enter the cell ID (e.g., A1, B2) to modify:");
+        inputDialog.setContentText("Cell ID:");
+
+        // הצגת הדיאלוג וקבלת תוצאת המשתמש
+        return inputDialog.showAndWait();
+    }
+
+    // פונקציה להמרת צבע לערכי RGB
+    private String toRgbString(Color color) {
+        return String.format("rgb(%d, %d, %d)",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
+    }
     @FXML
     private void setRowsWidthOnClick() {
         // יצירת דיאלוג להזנת רוחב

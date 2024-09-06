@@ -128,11 +128,9 @@ public class MainGridController {
             if (col == 0 || col == numOfCols + 2) {
 
                 colConstraints.setHgrow(Priority.ALWAYS);
-//                colConstraints.setMinWidth(40.0);
             } else {
 
                 colConstraints.setHgrow(Priority.NEVER);
-//                colConstraints.setMinWidth(75.0);
             }
             mainGrid.getColumnConstraints().add(colConstraints);
         }
@@ -154,6 +152,10 @@ public class MainGridController {
             RowConstraints rowConstraints = mainGrid.getRowConstraints().get(i);
             rowConstraints.setPrefHeight(width);
         }
+
+        for(CellComponentController cellComponentController : cellComponentControllers.values()) {
+            cellComponentController.getCellLabel().setPrefHeight(width);
+        }
     }
 
     public void updateColsConstraints(int width) {
@@ -167,6 +169,10 @@ public class MainGridController {
 
             ColumnConstraints columnConstraints = mainGrid.getColumnConstraints().get(i);
             columnConstraints.setPrefWidth(width);
+        }
+
+        for(CellComponentController cellComponentController : cellComponentControllers.values()) {
+            cellComponentController.getCellLabel().setPrefWidth(width);
         }
     }
 
@@ -188,4 +194,7 @@ public class MainGridController {
         }
     }
 
+    public CellComponentController getCellController(String cellId) {
+        return cellComponentControllers.get(cellId);
+    }
 }

@@ -5,9 +5,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="cellComponent" alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-radius: 10;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.maingrid.cell.CellComponentController">
+<VBox fx:id="cellComponent" alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.maingrid.cell.CellComponentController">
    <children>
-      <Label fx:id="effectiveValue" alignment="CENTER" minHeight="15.0" minWidth="30.0" onMouseClicked="#onMouseClicked">
+      <Label fx:id="effectiveValue" alignment="CENTER" minHeight="15.0" minWidth="30.0" VBox.vgrow="ALWAYS">
          <font>
             <Font size="14.0" />
          </font>

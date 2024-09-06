@@ -7,6 +7,7 @@ import components.actionline.ActionLineController;
 import components.commands.CommandsComponentController;
 import components.loadfile.LoadFileController;
 import components.maingrid.MainGridController;
+import components.maingrid.cell.CellComponentController;
 import dto.CellDTO;
 import dto.DTOFactoryImpl;
 import dto.SheetDTO;
@@ -149,5 +150,9 @@ public class AppController {
 
     public void updateColumnAlignment(int columnIndex, String alignment) {
         mainGridComponentController.updateColAlignment(columnIndex, alignment);
+    }
+
+    public CellComponentController getCellControllerById(String cellId) {
+        return mainGridComponentController.getCellController(cellId);
     }
 }

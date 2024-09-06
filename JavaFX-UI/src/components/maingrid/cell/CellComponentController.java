@@ -20,7 +20,7 @@ public class CellComponentController {
         effectiveValue.setMinWidth(appController.getPrefColWidth());
     }
 
-    public Label getEffectiveValue() {
+    public Label getCellLabel() {
         return effectiveValue;
     }
 
