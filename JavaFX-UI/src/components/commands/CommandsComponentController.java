@@ -2,9 +2,12 @@ package components.commands;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.RowConstraints;
 import main.AppController;
+
+import java.util.Optional;
 
 import static main.AppController.showErrorDialog;
 
@@ -15,12 +18,16 @@ public class CommandsComponentController {
     @FXML
     private Button setColWidthButton;
 
+    @FXML
+    private Button setColAlignmentButton;
+
     private AppController appController;
 
     @FXML
     private void initialize() {
         setColWidthButton.setDisable(true);
         setRowWidthButton.setDisable(true);
+        setColAlignmentButton.setDisable(true);
     }
 
     public void setAppController(AppController appController) {
@@ -30,6 +37,7 @@ public class CommandsComponentController {
     public void disableButtons(boolean disable) {
         setRowWidthButton.setDisable(disable);
         setColWidthButton.setDisable(disable);
+        setColAlignmentButton.setDisable(disable);
     }
 
     @FXML
@@ -88,6 +96,39 @@ public class CommandsComponentController {
         });
     }
 
+    @FXML
+    public void setColsAlignmentOnClick() {
+        // יצירת תיבת טקסט לקבלת שם העמודה
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Set Columns Alignment");
+        dialog.setHeaderText("Set the alignment for the columns");
+        dialog.setContentText("Please enter the column name (e.g., A, B, C):");
+
+        // הצגת הדיאלוג וחילוץ הערך שהמשתמש הכניס
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            String columnName = result.get().toUpperCase();
+
+            // יצירת תיבת בחירה (ComboBox) עבור יישור העמודה
+            ChoiceDialog<String> alignmentDialog = new ChoiceDialog<>("Alignment", "Left", "Center", "Right");
+            alignmentDialog.setTitle("Select Alignment");
+            alignmentDialog.setHeaderText("Choose the alignment for column " + columnName);
+            alignmentDialog.setContentText("Select alignment:");
+
+            // הצגת תיבת הבחירה וחילוץ הבחירה
+            Optional<String> alignmentResult = alignmentDialog.showAndWait();
+            if (alignmentResult.isPresent()) {
+                String alignment = alignmentResult.get();
+
+                // המרת שם העמודה לאינדקס העמודה
+                int columnIndex = columnName.charAt(0) - 'A' + 1; // הנחת שהעמודה היא A, B, C וכו'
+
+                // עדכון היישור של כל התאים בעמודה שנבחרה
+                appController.updateColumnAlignment(columnIndex, alignment);
+            }
+        }
+    }
 
 
 }

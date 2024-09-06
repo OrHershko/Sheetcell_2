@@ -15,3 +15,15 @@
 .grid-cell.Influencing {
     -fx-background-color: #a6e5a6;
 }
+
+.align-left {
+    -fx-alignment: center-left;
+}
+
+.align-center {
+    -fx-alignment: center;
+}
+
+.align-right {
+    -fx-alignment: center-right;
+}

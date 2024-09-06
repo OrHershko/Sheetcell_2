@@ -146,4 +146,8 @@ public class AppController {
         engine.setNewColsWidth(width);
         mainGridComponentController.updateColsConstraints(width);
     }
+
+    public void updateColumnAlignment(int columnIndex, String alignment) {
+        mainGridComponentController.updateColAlignment(columnIndex, alignment);
+    }
 }

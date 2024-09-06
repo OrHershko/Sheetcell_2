@@ -57,8 +57,6 @@ public class MainGridController {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainGridController.class.getResource("/components/maingrid/cell/CellComponent.fxml"));
         Region newCell = loader.load();
-//        newCell.setPrefWidth(appController.getPrefColWidth());
-//        newCell.setPrefHeight(appController.getPrefRowHeight());
         newCell.setDisable(isDisable);
         CellComponentController cellComponentController = loader.getController();
         cellComponentController.setEffectiveValue(effectiveValue);
@@ -171,4 +169,23 @@ public class MainGridController {
             columnConstraints.setPrefWidth(width);
         }
     }
+
+    public void updateColAlignment(int columnIndex, String alignment) {
+        for (Node node : mainGrid.getChildren()) {
+            Integer col = GridPane.getColumnIndex(node);
+            if (col != null && col == columnIndex + 1) {
+                if (alignment.equals("Left")) {
+                    node.getStyleClass().removeAll("align-center", "align-right");
+                    node.getStyleClass().add("align-left");
+                } else if (alignment.equals("Center")) {
+                    node.getStyleClass().removeAll("align-left", "align-right");
+                    node.getStyleClass().add("align-center");
+                } else if (alignment.equals("Right")) {
+                    node.getStyleClass().removeAll("align-left", "align-center");
+                    node.getStyleClass().add("align-right");
+                }
+            }
+        }
+    }
+
 }
