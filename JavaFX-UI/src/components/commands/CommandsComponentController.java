@@ -4,6 +4,7 @@ import components.maingrid.cell.CellComponentController;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -16,7 +17,7 @@ import static main.AppController.showErrorDialog;
 
 public class CommandsComponentController {
     @FXML
-    private Button setRowWidthButton;
+    private Button setRowHeightButton;
 
     @FXML
     private Button setColWidthButton;
@@ -32,8 +33,9 @@ public class CommandsComponentController {
     @FXML
     private void initialize() {
         setColWidthButton.setDisable(true);
-        setRowWidthButton.setDisable(true);
+        setRowHeightButton.setDisable(true);
         setColAlignmentButton.setDisable(true);
+        designCell.setDisable(true);
     }
 
     public void setAppController(AppController appController) {
@@ -41,9 +43,10 @@ public class CommandsComponentController {
     }
 
     public void disableButtons(boolean disable) {
-        setRowWidthButton.setDisable(disable);
+        setRowHeightButton.setDisable(disable);
         setColWidthButton.setDisable(disable);
         setColAlignmentButton.setDisable(disable);
+        designCell.setDisable(disable);
     }
 
     @FXML
@@ -140,58 +143,111 @@ public class CommandsComponentController {
                 (int) (color.getGreen() * 255),
                 (int) (color.getBlue() * 255));
     }
+
+
     @FXML
-    private void setRowsWidthOnClick() {
-        // יצירת דיאלוג להזנת רוחב
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Set Row Width");
-        dialog.setHeaderText("Set the width for the rows");
-        dialog.setContentText("Please enter the desired row width:");
+    private void setRowsHeightOnClick() {
+        // יצירת דיאלוג להזנת מספר השורה
+        TextInputDialog rowDialog = new TextInputDialog();
+        rowDialog.setTitle("Select Row");
+        rowDialog.setHeaderText("Select the row to change height");
+        rowDialog.setContentText("Please enter the row number:");
 
         // הצגת הדיאלוג וחכות לתשובת המשתמש
-        dialog.showAndWait().ifPresent(input -> {
+        rowDialog.showAndWait().ifPresent(rowInput -> {
             try {
-                // המרת הקלט ממחרוזת למספר
-                int width = Integer.parseInt(input);
+                // המרת הקלט ממחרוזת למספר (מספר השורה)
+                int rowIndex = Integer.parseInt(rowInput);
 
-                // בדוק שהרוחב שהוזן תקין (לא שלילי או קטן מדי)
-                if (width > 0) {
-                    appController.changeRowsWidth(width);
-                } else {
-                    // הצג הודעת שגיאה אם הערך אינו תקין
-                    showErrorDialog("Invalid input", "Row width must be a positive number.");
+                // בדיקה אם השורה קיימת
+                if (rowIndex >= 1 && appController.checkIfRowExist(rowIndex)) {
+                    // יצירת דיאלוג להזנת גובה השורה
+                    TextInputDialog heightDialog = new TextInputDialog();
+                    heightDialog.setTitle("Set Row Height");
+                    heightDialog.setHeaderText("Set the height for row " + rowIndex);
+                    heightDialog.setContentText("Please enter the desired row height:");
+
+                    // הצגת דיאלוג להזנת גובה
+                    heightDialog.showAndWait().ifPresent(heightInput -> {
+                        try {
+                            int height = Integer.parseInt(heightInput);
+
+                            if (height > 0) {
+                                appController.setRowHeightInGrid(rowIndex + 1, height); // השורה מתבססת על אינדקס 0
+                            }
+                            else {
+                                showErrorDialog("Invalid input", "Row height must be a positive number.");
+                            }
+                        }
+                        catch (NumberFormatException e) {
+                            showErrorDialog("Invalid input", "Please enter a valid number for row height.");
+                        }
+                    });
                 }
-            } catch (NumberFormatException e) {
+                else {
+                    // הצגת הודעת שגיאה במקרה שהשורה לא קיימת
+                    showErrorDialog("Invalid input", "The entered row number is out of range.");
+                }
+            }
+            catch (NumberFormatException e) {
                 // הצגת הודעת שגיאה במקרה של קלט לא חוקי
-                showErrorDialog("Invalid input", "Please enter a valid number.");
+                showErrorDialog("Invalid input", "Please enter a valid row number.");
             }
         });
     }
 
+
     @FXML
     private void setColsWidthOnClick() {
-        // יצירת דיאלוג להזנת רוחב
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Set Columns Width");
-        dialog.setHeaderText("Set the width for the columns");
-        dialog.setContentText("Please enter the desired columns width:");
+        // יצירת דיאלוג להזנת אות העמודה (A, B, C...)
+        TextInputDialog colDialog = new TextInputDialog();
+        colDialog.setTitle("Select Column");
+        colDialog.setHeaderText("Select the column to change width");
+        colDialog.setContentText("Please enter the column letter (A, B, C, ...):");
 
         // הצגת הדיאלוג וחכות לתשובת המשתמש
-        dialog.showAndWait().ifPresent(input -> {
-            try {
-                // המרת הקלט ממחרוזת למספר
-                int width = Integer.parseInt(input);
+        colDialog.showAndWait().ifPresent(colInput -> {
+            // המרה לאות גדולה למקרה שהמשתמש הזין אות קטנה
+            String columnLetter = colInput.toUpperCase();
 
-                // בדוק שהרוחב שהוזן תקין (לא שלילי או קטן מדי)
-                if (width > 0) {
-                    appController.changeColsWidth(width);
+            // בדיקת תקינות האות (רק A-Z)
+            if (columnLetter.length() == 1 && columnLetter.charAt(0) >= 'A' && columnLetter.charAt(0) <= 'Z') {
+                // המרת האות לאינדקס עמודה (A -> 1, B -> 2, וכו')
+                int colIndex = columnLetter.charAt(0) - 'A' + 1;
+
+                // בדיקה אם העמודה קיימת
+                if (appController.checkIfColExist(colIndex)) {
+                    // יצירת דיאלוג להזנת רוחב העמודה
+                    TextInputDialog widthDialog = new TextInputDialog();
+                    widthDialog.setTitle("Set Column Width");
+                    widthDialog.setHeaderText("Set the width for column " + columnLetter);
+                    widthDialog.setContentText("Please enter the desired column width:");
+
+                    // הצגת דיאלוג להזנת רוחב
+                    widthDialog.showAndWait().ifPresent(widthInput -> {
+                        try {
+                            // המרת הקלט ממחרוזת למספר (רוחב העמודה)
+                            int width = Integer.parseInt(widthInput);
+
+                            // בדיקת חוקיות הרוחב
+                            if (width > 0) {
+                                appController.setColWidthInGrid(colIndex + 1, width); // השורה מתבססת על אינדקס 0
+                            } else {
+                                // הצג הודעת שגיאה אם הערך אינו תקין
+                                showErrorDialog("Invalid input", "Column width must be a positive number.");
+                            }
+                        } catch (NumberFormatException e) {
+                            // הצגת הודעת שגיאה במקרה של קלט לא חוקי
+                            showErrorDialog("Invalid input", "Please enter a valid number for column width.");
+                        }
+                    });
                 } else {
-                    // הצג הודעת שגיאה אם הערך אינו תקין
-                    showErrorDialog("Invalid input", "Column width must be a positive number.");
+                    // הצגת הודעת שגיאה במקרה שהעמודה לא קיימת
+                    showErrorDialog("Invalid input", "The entered column letter is out of range.");
                 }
-            } catch (NumberFormatException e) {
-                // הצגת הודעת שגיאה במקרה של קלט לא חוקי
-                showErrorDialog("Invalid input", "Please enter a valid number.");
+            } else {
+                // הצגת הודעת שגיאה במקרה שהקלט לא תקין
+                showErrorDialog("Invalid input", "Please enter a valid column letter.");
             }
         });
     }

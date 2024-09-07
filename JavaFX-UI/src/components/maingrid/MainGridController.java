@@ -5,8 +5,6 @@ import dto.CellDTO;
 import dto.SheetDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.HPos;
-import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
@@ -154,48 +152,40 @@ public class MainGridController {
         cellComponentControllers.get(selectedCellId).onMouseClicked();
     }
 
-    public void updateRowsConstraints(int width) {
-        int rowCount = mainGrid.getRowConstraints().size();
+    public void updateRowConstraints(int rowIndex, int height) {
 
-        for (int i = 0; i < rowCount; i++) {
+        RowConstraints rowConstraints = mainGrid.getRowConstraints().get(rowIndex);
+        rowConstraints.setPrefHeight(height);
 
-            if (i == 0 || i == rowCount - 1) {
-                continue;
+        for (Node node : mainGrid.getChildren()) {
+            // קבלת אינדקס השורה של הרכיב הנוכחי
+            Integer currentRowIndex = GridPane.getRowIndex(node);
+
+            // בדיקה אם הרכיב נמצא בשורה הנכונה והאם הוא מסוג Label
+            if (currentRowIndex != null && currentRowIndex == rowIndex && node instanceof Label) {
+                // עדכון ה-prefHeight של ה-Label
+                ((Label) node).setPrefHeight(height);
             }
-
-            RowConstraints rowConstraints = mainGrid.getRowConstraints().get(i);
-            rowConstraints.setPrefHeight(width);
         }
 
-        for(CellComponentController cellComponentController : cellComponentControllers.values()) {
-            cellComponentController.getCellLabel().setPrefHeight(width);
-        }
-
-        for (CellComponentController cell : cellComponentControllersBorder.values()) {
-            cell.getCellLabel().setPrefHeight(width);
-        }
     }
 
-    public void updateColsConstraints(int width) {
-        int colCount = mainGrid.getColumnConstraints().size();
+    public void updateColConstraints(int colIndex, int width) {
 
-        for (int i = 0; i < colCount; i++) {
+        ColumnConstraints columnConstraints = mainGrid.getColumnConstraints().get(colIndex);
+        columnConstraints.setPrefWidth(width);
 
-            if (i == 0 || i == colCount - 1) {
-                continue;
+        for (Node node : mainGrid.getChildren()) {
+            // קבלת אינדקס העמודה של הרכיב הנוכחי
+            Integer currentColIndex = GridPane.getColumnIndex(node);
+
+            // בדיקה אם הרכיב נמצא בעמודה הנכונה והאם הוא מסוג Label
+            if (currentColIndex != null && currentColIndex == colIndex && node instanceof Label) {
+                // עדכון ה-prefWidth של ה-Label
+                ((Label) node).setPrefWidth(width);
             }
-
-            ColumnConstraints columnConstraints = mainGrid.getColumnConstraints().get(i);
-            columnConstraints.setPrefWidth(width);
         }
 
-        for(CellComponentController cellComponentController : cellComponentControllers.values()) {
-            cellComponentController.getCellLabel().setPrefWidth(width);
-        }
-
-        for (CellComponentController cell : cellComponentControllersBorder.values()) {
-            cell.getCellLabel().setPrefWidth(width);
-        }
     }
 //
 //    public void updateRowsConstraints(int height) {

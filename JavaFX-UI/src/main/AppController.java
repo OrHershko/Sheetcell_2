@@ -35,7 +35,7 @@ public class AppController {
     private BorderPane rootPane;
 
     @FXML
-    private HBox hboxContainer;
+    private HBox hBoxContainer;
 
     @FXML
     private GridPane loadFileComponent;
@@ -138,21 +138,27 @@ public class AppController {
         return ((SheetDTO)engine.getSheetDTO()).getColWidth();
     }
 
-    public void changeRowsWidth(int width) {
-        engine.setNewRowsWidth(width);
-        mainGridComponentController.updateRowsConstraints(width);
-    }
-
-    public void changeColsWidth(int width) {
-        engine.setNewColsWidth(width);
-        mainGridComponentController.updateColsConstraints(width);
-    }
-
     public void updateColumnAlignment(int columnIndex, String alignment) {
         mainGridComponentController.updateColAlignment(columnIndex, alignment);
     }
 
     public CellComponentController getCellControllerById(String cellId) {
         return mainGridComponentController.getCellController(cellId);
+    }
+
+    public boolean checkIfRowExist(int rowIndex) {
+        return rowIndex <= ((SheetDTO)engine.getSheetDTO()).getNumOfRows() && rowIndex >= 1;
+    }
+
+    public void setRowHeightInGrid(int rowIndex, int height) {
+        mainGridComponentController.updateRowConstraints(rowIndex, height);
+    }
+
+    public boolean checkIfColExist(int colIndex) {
+        return colIndex <= ((SheetDTO)engine.getSheetDTO()).getNumOfCols() && colIndex >= 1;
+    }
+
+    public void setColWidthInGrid(int rowIndex, int width) {
+        mainGridComponentController.updateColConstraints(rowIndex, width);
     }
 }
