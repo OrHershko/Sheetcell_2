@@ -5,7 +5,10 @@ import dto.CellDTO;
 import dto.SheetDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import main.AppController;
 
@@ -22,6 +25,8 @@ public class MainGridController {
 
     private final Map<String, CellComponentController> cellComponentControllers = new HashMap<>();
 
+    private final Map<String, CellComponentController> cellComponentControllersBorder = new HashMap<>();
+
     public void setAppController(AppController appController) {
         this.appController = appController;
     }
@@ -31,16 +36,19 @@ public class MainGridController {
         int numOfRows = sheetDTO.getNumOfRows();
         int numOfCols = sheetDTO.getNumOfCols();
 
-        createCell("",0,0, true);
+        CellComponentController borderCell = createCell("",0,0, true);
+        cellComponentControllersBorder.put("0", borderCell);
 
         for (int i = 1; i <= numOfRows; i++) {
             String row = String.format("%02d", i);
-            createCell(row, i,0, true);
+            CellComponentController cell = createCell(row, i,0, true);
+            cellComponentControllersBorder.put(row, cell);
         }
 
         for (int i = 1; i <= numOfCols; i++) {
             String col = String.format("%c", i - 1 + 'A');
-            createCell(col, 0, i, true);
+            CellComponentController cell = createCell(col, 0, i, true);
+            cellComponentControllersBorder.put(col, cell);
         }
     }
 
@@ -51,6 +59,7 @@ public class MainGridController {
             cell.setEffectiveValue(cellDTO.getEffectiveValue().getEffectiveValue().toString());
             cell.setCell(cellDTO);
         }
+
     }
 
     private CellComponentController createCell(String effectiveValue, int row, int column, boolean isDisable) throws IOException {
@@ -86,6 +95,8 @@ public class MainGridController {
         createColsInGrid(numOfCols);
         createRowsInGrid(numOfRows);
         createEmptyCellsInGrid(numOfRows, numOfCols);
+        //bindRowsToCells();
+        //bindColsToCells();
     }
 
     private void createEmptyCellsInGrid(int numOfRows, int numOfCols) throws IOException {
@@ -115,6 +126,7 @@ public class MainGridController {
 
             mainGrid.getRowConstraints().add(rowConstraints);
         }
+
     }
 
     private void createColsInGrid(int numOfCols) {
@@ -134,7 +146,9 @@ public class MainGridController {
             }
             mainGrid.getColumnConstraints().add(colConstraints);
         }
+
     }
+
 
     public void activateMouseClickedOfCell(String selectedCellId) {
         cellComponentControllers.get(selectedCellId).onMouseClicked();
@@ -156,6 +170,10 @@ public class MainGridController {
         for(CellComponentController cellComponentController : cellComponentControllers.values()) {
             cellComponentController.getCellLabel().setPrefHeight(width);
         }
+
+        for (CellComponentController cell : cellComponentControllersBorder.values()) {
+            cell.getCellLabel().setPrefHeight(width);
+        }
     }
 
     public void updateColsConstraints(int width) {
@@ -174,12 +192,71 @@ public class MainGridController {
         for(CellComponentController cellComponentController : cellComponentControllers.values()) {
             cellComponentController.getCellLabel().setPrefWidth(width);
         }
+
+        for (CellComponentController cell : cellComponentControllersBorder.values()) {
+            cell.getCellLabel().setPrefWidth(width);
+        }
     }
+//
+//    public void updateRowsConstraints(int height) {
+//        int rowCount = mainGrid.getRowConstraints().size();
+//
+//        for (int i = 0; i < rowCount; i++) {
+//            if (i == 0 || i == rowCount - 1) {
+//                continue;
+//            }
+//
+//            RowConstraints rowConstraints = mainGrid.getRowConstraints().get(i);
+//            rowConstraints.setPrefHeight(height); // שינוי גובה השורה
+//        }
+//
+//    }
+//
+//    private void bindRowsToCells() {
+//        for (CellComponentController cellComponentController : cellComponentControllers.values()) {
+//            // קישור גובה ה-Label לגובה השורה שבה הוא נמצא
+//            Label cellLabel = cellComponentController.getCellLabel();
+//            Integer rowIndex = GridPane.getRowIndex(cellLabel);
+//            if (rowIndex != null) {
+//                RowConstraints rowConstraints = mainGrid.getRowConstraints().get(rowIndex);
+//                cellLabel.prefHeightProperty().bind(rowConstraints.prefHeightProperty());
+//                rowConstraints.minHeightProperty().bind(cellLabel.minHeightProperty());
+//            }
+//        }
+//    }
+//
+//    public void updateColsConstraints(int width) {
+//        int colCount = mainGrid.getColumnConstraints().size();
+//
+//        for (int i = 0; i < colCount; i++) {
+//            if (i == 0 || i == colCount - 1) {
+//                continue;
+//            }
+//
+//            ColumnConstraints columnConstraints = mainGrid.getColumnConstraints().get(i);
+//            columnConstraints.setPrefWidth(width); // שינוי רוחב העמודה
+//        }
+//
+//    }
+//
+//    private void bindColsToCells() {
+//        for (CellComponentController cellComponentController : cellComponentControllers.values()) {
+//            // קישור רוחב ה-Label לרוחב העמודה שבה הוא נמצא
+//            Label cellLabel = cellComponentController.getCellLabel();
+//            Integer columnIndex = GridPane.getColumnIndex(cellLabel);
+//            if (columnIndex != null) {
+//                ColumnConstraints columnConstraints = mainGrid.getColumnConstraints().get(columnIndex);
+//                cellLabel.prefWidthProperty().bind(columnConstraints.prefWidthProperty());
+//                columnConstraints.minWidthProperty().bind(cellLabel.minWidthProperty());
+//            }
+//        }
+//    }
 
     public void updateColAlignment(int columnIndex, String alignment) {
         for (Node node : mainGrid.getChildren()) {
             Integer col = GridPane.getColumnIndex(node);
-            if (col != null && col == columnIndex + 1) {
+            Integer row = GridPane.getRowIndex(node);
+            if (col != null && col == columnIndex + 1 && row != null && row != 1) {
                 if (alignment.equals("Left")) {
                     node.getStyleClass().removeAll("align-center", "align-right");
                     node.getStyleClass().add("align-left");

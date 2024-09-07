@@ -16,8 +16,8 @@ public class CellComponentController {
     private AppController appController;
 
     public void setCellSize(){
-        effectiveValue.setMinHeight(appController.getPrefRowHeight());
-        effectiveValue.setMinWidth(appController.getPrefColWidth());
+        effectiveValue.setPrefHeight(appController.getPrefRowHeight());
+        effectiveValue.setPrefWidth(appController.getPrefColWidth());
     }
 
     public Label getCellLabel() {
