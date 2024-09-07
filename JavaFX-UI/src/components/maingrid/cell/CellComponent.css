@@ -16,6 +16,10 @@
     -fx-background-color: #a6e5a6;
 }
 
+.marked-cell {
+    -fx-background-color: yellow;
+}
+
 .align-left {
     -fx-alignment: center-left;
 }

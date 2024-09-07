@@ -70,9 +70,19 @@ public class EngineImpl implements Engine {
         currentSheet.setColWidth(currentSTLSheet.getSTLLayout().getSTLSize().getColumnWidthUnits());
         currentSheet.setRowHeight(currentSTLSheet.getSTLLayout().getSTLSize().getRowsHeightUnits());
         currentSheet.setActiveCells(currentSTLSheet.getSTLCells().getSTLCell());
-        currentSheet.setRanges(currentSTLSheet.getSTLRanges());
+        currentSheet.setRangesFromFile(currentSTLSheet.getSTLRanges());
     }
 
+    @Override
+    public void addNewRange(String topLeftCell, String bottomRightCell, String rangeName) {
+        int topLeftCellRow = Cell.getRowFromCellID(topLeftCell);
+        int topLeftCellColumn = Cell.getColumnFromCellID(topLeftCell);
+        int bottomRightCellRow = Cell.getRowFromCellID(bottomRightCell);
+        int bottomRightCellColumn = Cell.getColumnFromCellID(bottomRightCell);
+        currentSheet.checkIfRangeInBoundaries(topLeftCellRow, topLeftCellColumn, bottomRightCellRow, bottomRightCellColumn);
+        Range newRange = new Range(rangeName, topLeftCell, bottomRightCell, currentSheet);
+        currentSheet.addRange(newRange);
+    }
 
     private void checkDataValidity(STLSheet currentSTLSheet) {
         checkSheetSize(currentSTLSheet.getSTLLayout().getRows(), currentSTLSheet.getSTLLayout().getColumns());
@@ -261,5 +271,10 @@ public class EngineImpl implements Engine {
     @Override
     public void setNewColsWidth(int width) {
         currentSheet.setColWidth(width);
+    }
+
+    @Override
+    public Range getRangeFromSheet(String rangeName) {
+        return currentSheet.getRange(rangeName);
     }
 }

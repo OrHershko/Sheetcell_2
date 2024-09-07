@@ -1,6 +1,8 @@
 package api;
 
 
+import impl.Range;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -16,4 +18,6 @@ public interface Engine {
     void loadPreviousSheetFromFile(String filePath) throws IOException, ClassNotFoundException;
     void setNewRowsWidth(int width);
     void setNewColsWidth(int width);
+    void addNewRange(String topLeftCell, String bottomRightCell, String rangeName);
+    Range getRangeFromSheet(String rangeName);
 }

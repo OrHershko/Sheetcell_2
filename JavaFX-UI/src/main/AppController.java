@@ -8,10 +8,12 @@ import components.commands.CommandsComponentController;
 import components.loadfile.LoadFileController;
 import components.maingrid.MainGridController;
 import components.maingrid.cell.CellComponentController;
+import components.ranges.RangesController;
 import dto.CellDTO;
 import dto.DTOFactoryImpl;
 import dto.SheetDTO;
 import impl.EngineImpl;
+import impl.Range;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -61,6 +63,12 @@ public class AppController {
     @FXML
     private CommandsComponentController commandsComponentController;
 
+    @FXML
+    private VBox rangesComponent;
+
+    @FXML
+    private RangesController rangesComponentController;
+
 
     private final Engine engine = new EngineImpl(new DTOFactoryImpl());
 
@@ -70,6 +78,8 @@ public class AppController {
         mainGridComponentController.setAppController(this);
         actionLineComponentController.setAppController(this);
         commandsComponentController.setAppController(this);
+        rangesComponentController.setAppController(this);
+
     }
 
     public void loadFileToEngine(File selectedFile) throws IOException {
@@ -80,6 +90,7 @@ public class AppController {
                 mainGridComponentController.buildGridBoundaries((SheetDTO) engine.getSheetDTO());
                 mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
                 commandsComponentController.disableButtons(false);
+                rangesComponentController.disableButtons(false);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -160,5 +171,14 @@ public class AppController {
 
     public void setColWidthInGrid(int rowIndex, int width) {
         mainGridComponentController.updateColConstraints(rowIndex, width);
+    }
+
+    public void addNewRange(String topLeftCell, String bottomRightCell, String rangeName) {
+        engine.addNewRange(topLeftCell, bottomRightCell, rangeName);
+    }
+
+    public void markCellsInRange(String rangeName) {
+        Range range = engine.getRangeFromSheet(rangeName);
+        mainGridComponentController.markCellsInRange(range.getCells());
     }
 }

@@ -281,7 +281,7 @@ public class Sheet implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    private void checkIfRangeInBoundaries(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol) {
+    public void checkIfRangeInBoundaries(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol) {
         if(topLeftRow > numOfRows || topLeftCol > numOfCols || bottomRightRow > numOfRows || bottomRightCol > numOfCols
            || topLeftCol <= 0 || bottomRightCol <= 0 || topLeftRow <= 0 || bottomRightRow <= 0){
             throw new RuntimeException("Error: A defined range falls outside the sheet boundaries. Please ensure all ranges are within the valid sheet area.");
@@ -289,17 +289,21 @@ public class Sheet implements Serializable {
     }
 
     public void addRange(Range range) {
+        if(ranges.containsKey(range.getName()))
+        {
+            throw new RuntimeException("Error: At least two ranges have been found with the same name. Each range must have a unique identifier.");
+        }
         ranges.put(range.getName(), range);
     }
 
-    public void setRanges(STLRanges stlRanges) {
+    public void setRangesFromFile(STLRanges stlRanges) {
 
         for(STLRange stlRange: stlRanges.getSTLRange()){
-            if(ranges.containsKey(stlRange.getName()))
-            {
-                throw new RuntimeException("Error: At least two ranges have been found with the same name. Each range must have a unique identifier.");
-            }
-            ranges.put(stlRange.getName(),new Range(stlRange.getName(),stlRange.getSTLBoundaries().getFrom(),stlRange.getSTLBoundaries().getTo(),this));
+            addRange(new Range(stlRange.getName(),stlRange.getSTLBoundaries().getFrom(),stlRange.getSTLBoundaries().getTo(),this));
         }
+    }
+
+    public Range getRange(String rangeName) {
+        return ranges.get(rangeName);
     }
 }

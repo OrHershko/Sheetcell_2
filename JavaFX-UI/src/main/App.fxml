@@ -37,6 +37,7 @@
             <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
                <children>
                   <fx:include fx:id="commandsComponent" source="../components/commands/CommandsComponent.fxml" />
+                  <fx:include fx:id="rangesComponent" source="../components/ranges/Ranges.fxml" />
                </children>
             </VBox>
       </left>

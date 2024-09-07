@@ -3,6 +3,7 @@ package components.maingrid;
 import components.maingrid.cell.CellComponentController;
 import dto.CellDTO;
 import dto.SheetDTO;
+import impl.cell.Cell;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -12,6 +13,7 @@ import main.AppController;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainGridController {
@@ -263,5 +265,14 @@ public class MainGridController {
 
     public CellComponentController getCellController(String cellId) {
         return cellComponentControllers.get(cellId);
+    }
+
+    public void markCellsInRange(List<Cell> cells) {
+        for (Cell cell : cells) {
+            CellComponentController cellController = getCellController(cell.getIdentity());
+            if (cellController != null) {
+                cellController.getCellLabel().getStyleClass().add("marked-cell");
+            }
+        }
     }
 }

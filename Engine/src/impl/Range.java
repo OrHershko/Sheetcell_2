@@ -17,7 +17,6 @@ public class Range implements Serializable {
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
         this.cells = sheet.getCellsInRange(topLeft, bottomRight);
-        sheet.addRange(this);
     }
 
     public String getName() {
@@ -30,5 +29,9 @@ public class Range implements Serializable {
 
     public String getBottomRight() {
         return bottomRight;
+    }
+
+    public List<Cell> getCells() {
+        return cells;
     }
 }
