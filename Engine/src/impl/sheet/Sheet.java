@@ -260,25 +260,38 @@ public class Sheet implements Serializable {
 
     public List<Cell> getCellsInRange(String topLeft, String bottomRight) {
 
-        int topLeftCol = topLeft.charAt(0) - 'A' + 1;
-        int topLeftRow = Integer.parseInt(topLeft.substring(1));
+        List<Cell> cellsInRange = new ArrayList<>();
 
-        int bottomRightCol = bottomRight.charAt(0) - 'A' + 1;
-        int bottomRightRow = Integer.parseInt(bottomRight.substring(1));
+        int topLeftCol = Cell.getColumnFromCellID(topLeft);
+        int topLeftRow = Cell.getRowFromCellID(topLeft);
+
+        int bottomRightCol = Cell.getColumnFromCellID(bottomRight);
+        int bottomRightRow = Cell.getRowFromCellID(bottomRight);
 
         checkIfRangeInBoundaries(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
 
-        return activeCells.entrySet().stream()
-                .filter(entry -> {
-                    String cellIdentity = entry.getKey();
-                    int col = cellIdentity.charAt(0) - 'A' + 1;
-                    int row = Integer.parseInt(cellIdentity.substring(1));
+//        return activeCells.entrySet().stream()
+//                .filter(entry -> {
+//                    String cellIdentity = entry.getKey();
+//                    int col = Cell.getColumnFromCellID(cellIdentity);
+//                    int row = Cell.getRowFromCellID(cellIdentity);
+//
+//                    return (row >= topLeftRow && row <= bottomRightRow) &&
+//                            (col >= topLeftCol && col <= bottomRightCol);
+//                })
+//                .map(Map.Entry::getValue)
+//                .collect(Collectors.toList());
 
-                    return (row >= topLeftRow && row <= bottomRightRow) &&
-                            (col >= topLeftCol && col <= bottomRightCol);
-                })
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+        for (int row = topLeftRow; row <= bottomRightRow; row++) {
+            for (int col = topLeftCol; col <= bottomRightCol; col++) {
+                String cellIdentity = Cell.getCellIDFromRowCol(row, col);
+
+                Cell cell = activeCells.computeIfAbsent(cellIdentity, id -> new Cell(this, id));
+                cellsInRange.add(cell);
+            }
+        }
+
+        return cellsInRange;
     }
 
     public void checkIfRangeInBoundaries(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol) {

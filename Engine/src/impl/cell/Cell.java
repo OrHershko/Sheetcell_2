@@ -33,6 +33,10 @@ public class Cell implements Serializable {
         version = cellToCopy.getVersion();
     }
 
+    public static String getCellIDFromRowCol(int row, int col) {
+        return String.format("%C%d", col + 'A' - 1, row);
+    }
+
 
     public Sheet getSheet() {
         return mySheet;
