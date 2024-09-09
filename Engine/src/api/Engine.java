@@ -19,5 +19,5 @@ public interface Engine {
     void setNewRowsWidth(int width);
     void setNewColsWidth(int width);
     void addNewRange(String topLeftCell, String bottomRightCell, String rangeName);
-    Range getRangeFromSheet(String rangeName);
+    DTO getRangeDTOFromSheet(String rangeName);
 }

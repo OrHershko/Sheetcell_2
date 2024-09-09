@@ -11,6 +11,7 @@ import components.maingrid.cell.CellComponentController;
 import components.ranges.RangesController;
 import dto.CellDTO;
 import dto.DTOFactoryImpl;
+import dto.RangeDTO;
 import dto.SheetDTO;
 import impl.EngineImpl;
 import impl.Range;
@@ -178,7 +179,7 @@ public class AppController {
     }
 
     public void markCellsInRange(String rangeName) {
-        Range range = engine.getRangeFromSheet(rangeName);
-        mainGridComponentController.markCellsInRange(range.getCells());
+        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName);
+        mainGridComponentController.markCellsInRange(rangeDTO.getCells());
     }
 }

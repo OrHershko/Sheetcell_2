@@ -274,7 +274,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Range getRangeFromSheet(String rangeName) {
-        return currentSheet.getRange(rangeName);
+    public DTO getRangeDTOFromSheet(String rangeName) {
+        return DTOFactory.createRangeDTO(currentSheet.getRange(rangeName));
     }
 }

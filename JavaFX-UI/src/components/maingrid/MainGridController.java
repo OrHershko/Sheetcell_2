@@ -267,8 +267,8 @@ public class MainGridController {
         return cellComponentControllers.get(cellId);
     }
 
-    public void markCellsInRange(List<Cell> cells) {
-        for (Cell cell : cells) {
+    public void markCellsInRange(List<CellDTO> cells) {
+        for (CellDTO cell : cells) {
             CellComponentController cellController = getCellController(cell.getIdentity());
             if (cellController != null) {
                 cellController.getCellLabel().getStyleClass().add("marked-cell");
