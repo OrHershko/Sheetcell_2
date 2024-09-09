@@ -16,15 +16,17 @@ import dto.DTOFactoryImpl;
 import dto.RangeDTO;
 import dto.SheetDTO;
 import impl.EngineImpl;
-import impl.Range;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -80,7 +82,7 @@ public class AppController {
     private RangesController rangesComponentController;
 
     @FXML
-    private ChoiceBox<String> versionsSelectorComponent;
+    private MenuButton versionsSelectorComponent;
 
     @FXML
     private VersionsSelectorComponentController versionsSelectorComponentController;
@@ -89,15 +91,21 @@ public class AppController {
 
     private Stage previousVersionStage;  // משתנה סינגלטון עבור ה-Stage
 
+    private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // נכס עבור מספר הגרסה
+
 
     @FXML
-    public void initialize() {
+    public void initialize(){
         loadFileComponentController.setAppController(this);
         mainGridComponentController.setAppController(this);
         actionLineComponentController.setAppController(this);
         commandsComponentController.setAppController(this);
         rangesComponentController.setAppController(this);
         versionsSelectorComponentController.setAppController(this);
+        try {
+            createPreviousVersionStage();
+        } catch (IOException ignored) {
+        }
     }
 
     public void loadFileToEngine(File selectedFile) throws IOException {
@@ -109,6 +117,8 @@ public class AppController {
                 mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
                 commandsComponentController.disableButtons(false);
                 rangesComponentController.disableButtons(false);
+                versionsSelectorComponentController.disable(false);
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -125,7 +135,7 @@ public class AppController {
         engine.updateCellValue(selectedCellId, newCellValue, orgValue);
         mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
         mainGridComponentController.activateMouseClickedOfCell(selectedCellId);
-
+        versionsSelectorComponentController.updateVersionsSelector();
     }
 
     public void colorDependencies(Set<String> cells, String styleClass) {
@@ -211,37 +221,45 @@ public class AppController {
 
     public void loadPreviousVersion(int selectedVersion) {
         try {
-            // אם ה-Stage לא קיים, ניצור אותו
-            if (previousVersionStage == null) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/maingrid/mainGrid.fxml"));
-                Parent root = loader.load();
-                MainGridController controller = loader.getController();
-                controller.setAppController(this);
-
-                previousVersionStage = new Stage();
-                previousVersionStage.setTitle("Previous Sheet Version");
-                previousVersionStage.initModality(Modality.APPLICATION_MODAL);
-                Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/components/maingrid/cell/CellComponent.css").toExternalForm());
-                previousVersionStage.setScene(scene);
-                root.setUserData(controller);
-            }
-
-            // טען את הגרסה הנבחרת לתוך ה-Grid הקיים
-            MainGridController controller = (MainGridController) previousVersionStage.getScene().getRoot().getUserData();
+            currentPreviousVersion.set(selectedVersion);
+            ScrollPane scrollPane = (ScrollPane) previousVersionStage.getScene().getRoot();
+            GridPane gridPane = (GridPane) scrollPane.getContent();
+            MainGridController controller = (MainGridController) gridPane.getUserData();
             SheetDTO previousSheetDTO = (SheetDTO) engine.getSheetsPreviousVersionsDTO().get(selectedVersion);
             controller.createDynamicGrid(previousSheetDTO);
             controller.buildGridBoundaries(previousSheetDTO);
             controller.createInnerCellsInGrid(previousSheetDTO);
             controller.disableGrid(true);
 
-            // הצג את החלון אם הוא לא מוצג
             if (!previousVersionStage.isShowing()) {
                 previousVersionStage.show();
             }
 
         } catch (IOException e) {
             showErrorDialog("Error", "Failed to load previous version.");
+        }
+    }
+
+    private void createPreviousVersionStage() throws IOException {
+        if (previousVersionStage == null) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/maingrid/mainGrid.fxml"));
+            Parent root = loader.load();
+            MainGridController controller = loader.getController();
+            controller.setAppController(this);
+
+            ScrollPane scrollPane = new ScrollPane(root);
+            scrollPane.setFitToHeight(true);
+            scrollPane.setFitToWidth(true);
+
+            previousVersionStage = new Stage();
+            previousVersionStage.titleProperty().bind(
+                    currentPreviousVersion.asString("Previous Sheet Version - Version %d")
+            );
+            previousVersionStage.initModality(Modality.APPLICATION_MODAL);
+            Scene scene = new Scene(scrollPane);
+            scene.getStylesheets().add(getClass().getResource("/components/maingrid/cell/CellComponent.css").toExternalForm());
+            previousVersionStage.setScene(scene);
+            root.setUserData(controller);
         }
     }
 

@@ -2,7 +2,8 @@ package components.versions;
 
 import api.DTO;
 import javafx.fxml.FXML;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import main.AppController;
 
 import java.util.Map;
@@ -10,45 +11,48 @@ import java.util.Map;
 public class VersionsSelectorComponentController{
 
     @FXML
-    private ChoiceBox<String> versionsSelectorComponent;
+    private MenuButton versionsSelectorComponent;
 
     private AppController appController;
 
     @FXML
     private void initialize() {
-        versionsSelectorComponent.setValue("Version Selector");
-        versionsSelectorComponent.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                int selectedVersion = Integer.parseInt(newValue);
-                appController.loadPreviousVersion(selectedVersion);
-            }
-        });
+        versionsSelectorComponent.setDisable(true);
     }
 
     public void setAppController(AppController appController) {
         this.appController = appController;
     }
 
-    @FXML
-    public void openVersionsSelectorOnClick() {
+    public void updateVersionsSelector() {
+        try {
+            Map<Integer, DTO> previousVersionsDTO;
 
-        Map<Integer, DTO> previousVersionsDTO;
+            try {
+                versionsSelectorComponent.getItems().clear();
+                previousVersionsDTO = appController.getSheetsPreviousVersionsDTO();
+            }
+            catch (Exception e) {
+                return;
+            }
 
-        try{
-            previousVersionsDTO = appController.getSheetsPreviousVersionsDTO();
+            for (Map.Entry<Integer, DTO> entry : previousVersionsDTO.entrySet()) {
+                int versionNumber = entry.getKey();
+                MenuItem menuItem = new MenuItem("Version " + versionNumber);
+
+                menuItem.setOnAction(event -> {
+                    appController.loadPreviousVersion(versionNumber);
+                });
+
+                versionsSelectorComponent.getItems().add(menuItem);
+            }
+        } catch (RuntimeException e) {
+            AppController.showErrorDialog("Error", e.getMessage());
         }
-        catch(Exception e){
-            return;
-        }
-
-        versionsSelectorComponent.getItems().clear();
-
-        for (Map.Entry<Integer, DTO> entry : previousVersionsDTO.entrySet()) {
-            versionsSelectorComponent.getItems().add(String.valueOf(entry.getKey()));
-        }
-
     }
 
 
-
+    public void disable(boolean disable) {
+        versionsSelectorComponent.setDisable(disable);
+    }
 }
