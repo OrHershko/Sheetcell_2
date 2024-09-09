@@ -52,6 +52,10 @@ public class MainGridController {
         }
     }
 
+    public void disableGrid(boolean disable){
+        mainGrid.setMouseTransparent(disable);
+    }
+
     public void createInnerCellsInGrid(SheetDTO sheetDTO) throws IOException {
         for(CellDTO cellDTO : sheetDTO.getActiveCells().values())
         {

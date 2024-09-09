@@ -2,6 +2,7 @@ package main;
 
 
 import api.CellValue;
+import api.DTO;
 import api.Engine;
 import components.actionline.ActionLineController;
 import components.commands.CommandsComponentController;
@@ -9,6 +10,7 @@ import components.loadfile.LoadFileController;
 import components.maingrid.MainGridController;
 import components.maingrid.cell.CellComponentController;
 import components.ranges.RangesController;
+import components.versions.VersionsSelectorComponentController;
 import dto.CellDTO;
 import dto.DTOFactoryImpl;
 import dto.RangeDTO;
@@ -17,15 +19,22 @@ import impl.EngineImpl;
 import impl.Range;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import static impl.cell.Cell.getColumnFromCellID;
@@ -70,8 +79,16 @@ public class AppController {
     @FXML
     private RangesController rangesComponentController;
 
+    @FXML
+    private ChoiceBox<String> versionsSelectorComponent;
+
+    @FXML
+    private VersionsSelectorComponentController versionsSelectorComponentController;
 
     private final Engine engine = new EngineImpl(new DTOFactoryImpl());
+
+    private Stage previousVersionStage;  // משתנה סינגלטון עבור ה-Stage
+
 
     @FXML
     public void initialize() {
@@ -80,7 +97,7 @@ public class AppController {
         actionLineComponentController.setAppController(this);
         commandsComponentController.setAppController(this);
         rangesComponentController.setAppController(this);
-
+        versionsSelectorComponentController.setAppController(this);
     }
 
     public void loadFileToEngine(File selectedFile) throws IOException {
@@ -187,4 +204,45 @@ public class AppController {
         RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName);
         mainGridComponentController.unmarkCellsInRange(rangeDTO.getCells());
     }
+
+    public Map<Integer, DTO> getSheetsPreviousVersionsDTO() {
+        return engine.getSheetsPreviousVersionsDTO();
+    }
+
+    public void loadPreviousVersion(int selectedVersion) {
+        try {
+            // אם ה-Stage לא קיים, ניצור אותו
+            if (previousVersionStage == null) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/maingrid/mainGrid.fxml"));
+                Parent root = loader.load();
+                MainGridController controller = loader.getController();
+                controller.setAppController(this);
+
+                previousVersionStage = new Stage();
+                previousVersionStage.setTitle("Previous Sheet Version");
+                previousVersionStage.initModality(Modality.APPLICATION_MODAL);
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/components/maingrid/cell/CellComponent.css").toExternalForm());
+                previousVersionStage.setScene(scene);
+                root.setUserData(controller);
+            }
+
+            // טען את הגרסה הנבחרת לתוך ה-Grid הקיים
+            MainGridController controller = (MainGridController) previousVersionStage.getScene().getRoot().getUserData();
+            SheetDTO previousSheetDTO = (SheetDTO) engine.getSheetsPreviousVersionsDTO().get(selectedVersion);
+            controller.createDynamicGrid(previousSheetDTO);
+            controller.buildGridBoundaries(previousSheetDTO);
+            controller.createInnerCellsInGrid(previousSheetDTO);
+            controller.disableGrid(true);
+
+            // הצג את החלון אם הוא לא מוצג
+            if (!previousVersionStage.isShowing()) {
+                previousVersionStage.show();
+            }
+
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to load previous version.");
+        }
+    }
+
 }

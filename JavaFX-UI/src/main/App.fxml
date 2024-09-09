@@ -25,6 +25,7 @@
                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                            <children>
                               <fx:include fx:id="loadFileComponent" source="../components/loadfile/LoadFile.fxml" />
+                              <fx:include fx:id="versionsSelectorComponent" source="../components/versions/VersionsSelectorComponent.fxml" />
                            </children>
                         </HBox>
                         <fx:include fx:id="actionLineComponent" source="../components/actionline/ActionLine.fxml" />
