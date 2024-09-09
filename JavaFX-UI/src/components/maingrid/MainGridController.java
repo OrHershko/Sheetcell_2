@@ -189,60 +189,6 @@ public class MainGridController {
         }
 
     }
-//
-//    public void updateRowsConstraints(int height) {
-//        int rowCount = mainGrid.getRowConstraints().size();
-//
-//        for (int i = 0; i < rowCount; i++) {
-//            if (i == 0 || i == rowCount - 1) {
-//                continue;
-//            }
-//
-//            RowConstraints rowConstraints = mainGrid.getRowConstraints().get(i);
-//            rowConstraints.setPrefHeight(height); // שינוי גובה השורה
-//        }
-//
-//    }
-//
-//    private void bindRowsToCells() {
-//        for (CellComponentController cellComponentController : cellComponentControllers.values()) {
-//            // קישור גובה ה-Label לגובה השורה שבה הוא נמצא
-//            Label cellLabel = cellComponentController.getCellLabel();
-//            Integer rowIndex = GridPane.getRowIndex(cellLabel);
-//            if (rowIndex != null) {
-//                RowConstraints rowConstraints = mainGrid.getRowConstraints().get(rowIndex);
-//                cellLabel.prefHeightProperty().bind(rowConstraints.prefHeightProperty());
-//                rowConstraints.minHeightProperty().bind(cellLabel.minHeightProperty());
-//            }
-//        }
-//    }
-//
-//    public void updateColsConstraints(int width) {
-//        int colCount = mainGrid.getColumnConstraints().size();
-//
-//        for (int i = 0; i < colCount; i++) {
-//            if (i == 0 || i == colCount - 1) {
-//                continue;
-//            }
-//
-//            ColumnConstraints columnConstraints = mainGrid.getColumnConstraints().get(i);
-//            columnConstraints.setPrefWidth(width); // שינוי רוחב העמודה
-//        }
-//
-//    }
-//
-//    private void bindColsToCells() {
-//        for (CellComponentController cellComponentController : cellComponentControllers.values()) {
-//            // קישור רוחב ה-Label לרוחב העמודה שבה הוא נמצא
-//            Label cellLabel = cellComponentController.getCellLabel();
-//            Integer columnIndex = GridPane.getColumnIndex(cellLabel);
-//            if (columnIndex != null) {
-//                ColumnConstraints columnConstraints = mainGrid.getColumnConstraints().get(columnIndex);
-//                cellLabel.prefWidthProperty().bind(columnConstraints.prefWidthProperty());
-//                columnConstraints.minWidthProperty().bind(cellLabel.minWidthProperty());
-//            }
-//        }
-//    }
 
     public void updateColAlignment(int columnIndex, String alignment) {
         for (Node node : mainGrid.getChildren()) {
@@ -271,7 +217,17 @@ public class MainGridController {
         for (CellDTO cell : cells) {
             CellComponentController cellController = getCellController(cell.getIdentity());
             if (cellController != null) {
-                cellController.getCellLabel().getStyleClass().add("marked-cell");
+                if(!cellController.getCellLabel().getStyleClass().contains("marked-cell"))
+                    cellController.getCellLabel().getStyleClass().add("marked-cell");
+            }
+        }
+    }
+
+    public void unmarkCellsInRange(List<CellDTO> cells) {
+        for (CellDTO cell : cells) {
+            CellComponentController cellController = getCellController(cell.getIdentity());
+            if (cellController != null) {
+                cellController.getCellLabel().getStyleClass().remove("marked-cell");
             }
         }
     }

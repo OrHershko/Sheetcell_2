@@ -1,6 +1,7 @@
 package impl.sheet;
 
 import api.CellValue;
+import exception.RangeDoesntExistException;
 import generated.STLCell;
 import generated.STLRange;
 import generated.STLRanges;
@@ -316,6 +317,9 @@ public class Sheet implements Serializable {
     }
 
     public Range getRange(String rangeName) {
+        if(!ranges.containsKey(rangeName)){
+            throw new RangeDoesntExistException("The range '" + rangeName + "' does not exist.");
+        }
         return ranges.get(rangeName);
     }
 }

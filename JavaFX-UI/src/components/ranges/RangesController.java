@@ -1,5 +1,6 @@
 package components.ranges;
 
+import exception.RangeDoesntExistException;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -19,6 +20,9 @@ public class RangesController {
     @FXML
     private Button markRangeButton;
 
+    @FXML
+    private Button unmarkRangeButton;
+
     private AppController appController;
 
     @FXML
@@ -26,12 +30,14 @@ public class RangesController {
         addNewRangeButton.setDisable(true);
         deleteRangeButton.setDisable(true);
         markRangeButton.setDisable(true);
+        unmarkRangeButton.setDisable(true);
     }
 
     public void disableButtons(boolean disable) {
         addNewRangeButton.setDisable(disable);
         deleteRangeButton.setDisable(disable);
         markRangeButton.setDisable(disable);
+        unmarkRangeButton.setDisable(disable);
     }
 
     @FXML
@@ -106,10 +112,26 @@ public class RangesController {
         // בדיקה אם הטווח קיים במערכת
         try {
             appController.markCellsInRange(rangeName);
-        }catch (Exception e) {
+        }
+        catch (Exception e) {
             AppController.showErrorDialog("Range not found", "The range '" + rangeName + "' does not exist.");
         }
 
+    }
+
+    @FXML
+    private void unmarkExistingRangeOnClick(){
+        String rangeName = requestRangeName();
+        if (rangeName == null) {
+            return;
+        }
+
+        try {
+            appController.unmarkCellsInRange(rangeName);
+        }
+        catch (Exception e){
+            AppController.showErrorDialog("Range unmark error", e.getMessage());
+        }
     }
 
     public void setAppController(AppController appController) {

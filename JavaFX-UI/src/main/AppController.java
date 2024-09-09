@@ -182,4 +182,9 @@ public class AppController {
         RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName);
         mainGridComponentController.markCellsInRange(rangeDTO.getCells());
     }
+
+    public void unmarkCellsInRange(String rangeName) {
+        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName);
+        mainGridComponentController.unmarkCellsInRange(rangeDTO.getCells());
+    }
 }
