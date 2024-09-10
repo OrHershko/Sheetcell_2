@@ -57,7 +57,12 @@ public class ActionLineController {
     }
 
     @FXML
-    public void updateCell() throws IOException {
-        appController.updateCellDataToEngine(currentCellId ,textField.getText());
+    public void updateCell(){
+        try {
+            appController.updateCellDataToEngine(currentCellId ,textField.getText());
+        }
+        catch (Exception e) {
+            AppController.showErrorDialog("Update Cell Error", e.getMessage());
+        }
     }
 }

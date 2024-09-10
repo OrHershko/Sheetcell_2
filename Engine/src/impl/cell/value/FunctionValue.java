@@ -1,13 +1,16 @@
 package impl.cell.value;
 
 import api.CellValue;
+import exception.RangeDoesntExistException;
 import exception.WrongParenthesesOrderException;
 import impl.EngineImpl;
+import impl.Range;
 import impl.cell.Cell;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 public class FunctionValue implements CellValue {
@@ -149,6 +152,21 @@ public class FunctionValue implements CellValue {
                 catch (ClassCastException e) {
                         throw new RuntimeException("Error: argument is not valid. Ensure that the input argument is a cell identity, e.g. {REF,A4}.");
                     }
+
+            case SUM:
+                try {
+                    checkNumOfArguments(1, "1 argument");
+                    String rangeName = (String) arguments.getFirst().eval();
+                    Range range = activatingCell.getSheet().getRange(rangeName);
+                    return functionType.apply(range);
+                }
+                catch (ClassCastException e) {
+                    throw new RuntimeException("Error: argument is not valid. Ensure that the input argument is an existing range.");
+                }
+                catch (NoSuchElementException e)
+                {
+                    throw new RuntimeException("Error: No arguments provided. This function requires an argument to be passed.");
+                }
         }
         return null;
     }
@@ -246,6 +264,18 @@ public class FunctionValue implements CellValue {
 
                 return referancedCell.getEffectiveValue();
             }
+        },
+        SUM{
+            @Override
+            public double apply(Range range){
+                double sum = 0;
+                for(Cell cell: range.getCells()){
+                    if(isDouble(cell.getEffectiveValue().eval())){
+                        sum += (double) cell.getEffectiveValue().eval();
+                    }
+                }
+                return sum;
+            }
         };
 
         public double apply(double arg1, double arg2) {
@@ -267,7 +297,24 @@ public class FunctionValue implements CellValue {
         public CellValue apply(String cellId, Cell activatingCell) {
             throw new UnsupportedOperationException("Error: This function does not support referring operations");
         }
+
+        public double apply(Range range){
+            throw new UnsupportedOperationException("Error: This function does not support range operations");
+        }
     }
+
+    public static boolean isDouble(Object obj) {
+        if (obj instanceof Double) {
+            return true;
+        }
+        try {
+            Double.parseDouble(obj.toString());
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
 
     private static boolean isStringInCellIdentityFormat(String str){
         if (str == null || str.length() < 2) {
