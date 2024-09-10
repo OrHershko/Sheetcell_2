@@ -154,6 +154,7 @@ public class FunctionValue implements CellValue {
                     }
 
             case SUM:
+            case AVERAGE:
                 try {
                     checkNumOfArguments(1, "1 argument");
                     String rangeName = (String) arguments.getFirst().eval();
@@ -275,6 +276,23 @@ public class FunctionValue implements CellValue {
                     }
                 }
                 return sum;
+            }
+        },
+        AVERAGE{
+            @Override
+            public double apply(Range range){
+                double sum = 0;
+                double count = 0;
+                for(Cell cell: range.getCells()){
+                    if(isDouble(cell.getEffectiveValue().eval())){
+                        sum += (double) cell.getEffectiveValue().eval();
+                        count++;
+                    }
+                }
+                if(count == 0){
+                        throw new ArithmeticException("Error: The specified range contains no numbers, which is not allowed. Please provide a valid range with at least one number.");
+                }
+                return sum/count;
             }
         };
 
