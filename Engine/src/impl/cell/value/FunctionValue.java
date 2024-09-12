@@ -104,6 +104,8 @@ public class FunctionValue implements CellValue {
             case DIVIDE:
             case MOD:
             case POW:
+            case BIGGER:
+            case LESS:
                 try {
                     checkNumOfArguments(2, "2 arguments");
                     double arg1 = (double) arguments.get(0).eval();
@@ -178,45 +180,81 @@ public class FunctionValue implements CellValue {
                 {
                     throw new RuntimeException("Error: No arguments provided. This function requires an argument to be passed.");
                 }
-           case EQUAL:
-
+            case EQUAL:
                checkNumOfArguments(2, "2 arguments");
                Object obj1 =  arguments.get(0).eval();
                Object obj2 =  arguments.get(1).eval();
                return functionType.apply(obj1,obj2);
+
+            case NOT:
+                checkNumOfArguments(1, "1 argument");
+                try{
+                Boolean boolVal =  (Boolean) arguments.getFirst().eval();
+                    return functionType.apply(boolVal);
+                }
+                catch (ClassCastException e) {
+                    throw new RuntimeException("Error: argument is not valid. Ensure that the input argument is a boolean expression, e.g. {NOT,TRUE}.");
+                }
+            case AND:
+            case OR:
+                checkNumOfArguments(2, "2 arguments");
+                try{
+                    Boolean exp1 =  (Boolean) arguments.get(0).eval();
+                    Boolean exp2 =  (Boolean) arguments.get(1).eval();
+                    return functionType.apply(exp1,exp2);
+                }
+                catch (ClassCastException e) {
+                    throw new RuntimeException(String.format("Error: One or more arguments are not valid. Ensure that all inputs for this function are boolean, e.g. {%s,TRUE,FALSE}", functionType.name()));
+                }
+            case IF:
+                checkNumOfArguments(3, "3 arguments");
+                try{
+                    Boolean exp1 =  (Boolean) arguments.get(0).eval();
+                    Object exp2 =  arguments.get(1).eval();
+                    Object exp3 =  arguments.get(2).eval();
+
+                    return functionType.apply(exp1,exp2,exp3);
+                }
+                catch (ClassCastException e) {
+                    throw new RuntimeException("Error: One or more arguments are not valid. Ensure that the first input for this function is boolean, e.g. {TRUE,4,5}");
+                }
+
+
+
         }
+
         return null;
     }
 
     public enum FunctionType {
         PLUS {
             @Override
-            public double apply(double arg1, double arg2) {
+            public Double apply(double arg1, double arg2) {
                 return arg1 + arg2;
             }
         },
         MINUS {
             @Override
-            public double apply(double arg1, double arg2) {
+            public Double apply(double arg1, double arg2) {
                 return arg1 - arg2;
             }
         },
         TIMES {
             @Override
-            public double apply(double arg1, double arg2) {
+            public Double apply(double arg1, double arg2) {
                 return arg1 * arg2;
             }
 
         },
         MOD{
             @Override
-            public double apply(double arg1, double arg2) {
+            public Double apply(double arg1, double arg2) {
                 return arg1 % arg2;
             }
         },
         DIVIDE {
             @Override
-            public double apply(double arg1, double arg2) {
+            public Double apply(double arg1, double arg2) {
                 if (arg2 == 0) {
                     throw new ArithmeticException("Division by zero");
                 }
@@ -225,7 +263,7 @@ public class FunctionValue implements CellValue {
         },
         POW {
             @Override
-            public double apply(double arg1, double arg2) {
+            public Double apply(double arg1, double arg2) {
                 if(arg1 == 0 && arg2 < 0){
                     throw new ArithmeticException("Division by zero");
                 }
@@ -255,7 +293,7 @@ public class FunctionValue implements CellValue {
         },
         PERCENT {
             @Override
-            public double apply(double part, double whole) {
+            public Double apply(double part, double whole) {
                 if(part < 0){
                     throw new ArithmeticException("Negative percent");
                 }
@@ -325,12 +363,60 @@ public class FunctionValue implements CellValue {
             public boolean apply (Object obj1, Object obj2){
                 return obj1.equals(obj2);
             }
+        },
+        NOT{
+            @Override
+            public Boolean apply (Boolean booleanVal){
+                return !booleanVal;
+            }
 
+        },
+        AND{
+            @Override
+            public Boolean apply(Boolean exp1, Boolean exp2){
+                return exp1 && exp2;
+            }
+        },
+        OR{
+            @Override
+            public Boolean apply(Boolean exp1, Boolean exp2){
+                return exp1 || exp2;
+            }
+        },
+        BIGGER{
+            @Override
+            public Boolean apply(double arg1, double arg2){
+                return arg1 >= arg2;
+            }
+
+        },
+        LESS{
+            @Override
+            public Boolean apply(double arg1, double arg2){
+                return arg1 <= arg2;
+            }
+
+        },
+        IF{
+            @Override
+            public Object apply(Boolean condition, Object thenVal, Object elseVal){
+
+                return condition ? thenVal : elseVal;
+            }
         };
 
+        public Object apply(Boolean condition, Object thenVal, Object elseVal){
+            throw new UnsupportedOperationException("Error: This function does not support boolean operations");
+        }
 
-        public double apply(double arg1, double arg2) {
+        public Boolean apply(Boolean exp1, Boolean exp2){
+            throw new UnsupportedOperationException("Error: This function does not support boolean operations");
+        }
+        public Object apply(double arg1, double arg2) {
             throw new UnsupportedOperationException("Error: This function does not support numeric operations");
+        }
+        public Boolean apply(Boolean booleanVal){
+            throw new UnsupportedOperationException("Error: This function does not support boolean operations");
         }
 
         public boolean apply(Object obj1, Object obj2){
