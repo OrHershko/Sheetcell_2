@@ -143,7 +143,16 @@ public class FunctionValue implements CellValue {
                 catch (ClassCastException e) {
                     throw new RuntimeException("Error: One or more arguments are not valid. Ensure that all arguments are correctly formatted as (source-text, start-index, end-index)  e.g. {SUB,HELLO,1,3}.");
                 }
-
+            case PERCENT:
+                checkNumOfArguments(2, "2 arguments");
+                try{
+                    double idx1 =  (Double) arguments.get(0).eval();
+                    double idx2 =  (Double) arguments.get(1).eval();
+                    return functionType.apply(idx1,idx2);
+                }
+                catch (ClassCastException e) {
+                    throw new RuntimeException(String.format("Error: One or more arguments are not valid. Ensure that all inputs for this function are numeric, e.g. {%s,4,5}.", functionType.name()));
+                }
             case REF:
                 try {
                     String str = (String) arguments.getFirst().eval();
@@ -235,6 +244,15 @@ public class FunctionValue implements CellValue {
                     return "!UNDEFINED!";
                 }
                 return source.substring(startIndex, endIndex + 1);
+            }
+        },
+        PERCENT {
+            @Override
+            public double apply(double part, double whole) {
+                if(part < 0){
+                    throw new ArithmeticException("Negative percent");
+                }
+                return part * whole/100;
             }
         },
         REF {
