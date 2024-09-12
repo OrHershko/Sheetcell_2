@@ -1,6 +1,7 @@
 package components.ranges;
 
 import exception.RangeDoesntExistException;
+import exception.RangeUsedInFunctionException;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -136,6 +137,24 @@ public class RangesController {
 
     public void setAppController(AppController appController) {
         this.appController = appController;
+    }
+
+    @FXML
+    private void deleteRangeOnClick(){
+        String rangeName = requestRangeName();
+        if (rangeName == null) {
+            return;
+        }
+
+        try{
+            appController.deleteExistingRange(rangeName);
+        }
+        catch (RangeDoesntExistException e){
+            AppController.showErrorDialog("Range not found", e.getMessage());
+        }
+        catch (RangeUsedInFunctionException e){
+            AppController.showErrorDialog("Range Deleting Error", e.getMessage());
+        }
     }
 
 }

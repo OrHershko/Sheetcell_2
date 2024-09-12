@@ -20,4 +20,5 @@ public interface Engine {
     void setNewColsWidth(int width);
     void addNewRange(String topLeftCell, String bottomRightCell, String rangeName);
     DTO getRangeDTOFromSheet(String rangeName);
+    void deleteRangeFromSheet(String rangeName);
 }

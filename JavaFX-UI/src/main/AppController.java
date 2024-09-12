@@ -263,4 +263,9 @@ public class AppController {
         }
     }
 
+    public void deleteExistingRange(String rangeName) {
+        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName);
+        engine.deleteRangeFromSheet(rangeName);
+        mainGridComponentController.unmarkCellsInRange(rangeDTO.getCells());
+    }
 }

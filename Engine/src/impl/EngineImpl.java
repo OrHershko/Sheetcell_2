@@ -4,6 +4,7 @@ import api.*;
 import exception.CellOutOfBoundsException;
 import exception.FileNotXMLException;
 import exception.InvalidSheetSizeException;
+import exception.RangeUsedInFunctionException;
 import generated.STLCell;
 import generated.STLSheet;
 import impl.cell.Cell;
@@ -276,5 +277,23 @@ public class EngineImpl implements Engine {
     @Override
     public DTO getRangeDTOFromSheet(String rangeName) {
         return DTOFactory.createRangeDTO(currentSheet.getRange(rangeName));
+    }
+
+    @Override
+    public void deleteRangeFromSheet(String rangeName) {
+        for(Cell cell : currentSheet.getActiveCells().values()) {
+            if(cell.getEffectiveValue() instanceof FunctionValue functionValue) {
+                if(functionValue.getFunctionType().equals(FunctionValue.FunctionType.AVERAGE) || functionValue.getFunctionType().equals(FunctionValue.FunctionType.SUM))
+                {
+                    if(functionValue.getArguments().getFirst().getEffectiveValue().equals(rangeName))
+                    {
+                        throw new RangeUsedInFunctionException("The range '" + rangeName + "cannot be deleted because it is used in a function.");
+                    }
+                }
+            }
+        }
+
+        currentSheet.deleteRange(rangeName);
+
     }
 }

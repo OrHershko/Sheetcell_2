@@ -224,7 +224,7 @@ public class FunctionValue implements CellValue {
         checkNumOfArguments(1, "1 argument");
         String rangeName = (String) arguments.getFirst().eval();
         Range range = activatingCell.getSheet().getRange(rangeName);
-        
+
         if(range.getCells().contains(activatingCell)) {
             throw new RuntimeException("Error: The cell on which the function was applied is part of the range given in the function.");
         }
@@ -583,5 +583,13 @@ public class FunctionValue implements CellValue {
         catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Clone failed", e);
         }
+    }
+
+    public FunctionType getFunctionType() {
+        return functionType;
+    }
+
+    public List<CellValue> getArguments() {
+        return arguments;
     }
 }

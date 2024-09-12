@@ -305,9 +305,18 @@ public class Sheet implements Serializable {
     }
 
     public Range getRange(String rangeName) {
+        checkIfRangeExist(rangeName);
+        return ranges.get(rangeName);
+    }
+
+    private void checkIfRangeExist(String rangeName) {
         if(!ranges.containsKey(rangeName)){
             throw new RangeDoesntExistException("The range '" + rangeName + "' does not exist.");
         }
-        return ranges.get(rangeName);
+    }
+
+    public void deleteRange(String rangeName) {
+        checkIfRangeExist(rangeName);
+        ranges.remove(rangeName);
     }
 }

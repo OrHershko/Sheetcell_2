@@ -9,7 +9,7 @@
    <children>
       <Label text="Ranges" />
       <Button fx:id="addNewRangeButton" mnemonicParsing="false" onMouseClicked="#addNewRangeOnClick" text="Add New Range" />
-      <Button fx:id="deleteRangeButton" mnemonicParsing="false" text="Delete Existing Range" />
+      <Button fx:id="deleteRangeButton" mnemonicParsing="false" onMouseClicked="#deleteRangeOnClick" text="Delete Existing Range" />
       <Button fx:id="markRangeButton" mnemonicParsing="false" onMouseClicked="#markExistingRangeOnClick" text="Mark Existing Range" />
       <Button fx:id="unmarkRangeButton" mnemonicParsing="false" onMouseClicked="#unmarkExistingRangeOnClick" text="Unmark Existing Range" />
    </children>
