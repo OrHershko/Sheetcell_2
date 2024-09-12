@@ -162,8 +162,7 @@ public class Sheet implements Serializable {
             createNewCell(cellIdentity, EngineImpl.convertStringToCellValue(orgValue), orgValue, true);
             changedCellsCount++;
         }
-        List<Cell> topologicalOrder = sortActiveCellsTopologicallyByDFS();
-        recalculateByTopologicalOrder(topologicalOrder);
+
     }
 
     public void detectCycleByDFS(){
@@ -270,18 +269,6 @@ public class Sheet implements Serializable {
 
         checkIfRangeInBoundaries(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
 
-//        return activeCells.entrySet().stream()
-//                .filter(entry -> {
-//                    String cellIdentity = entry.getKey();
-//                    int col = Cell.getColumnFromCellID(cellIdentity);
-//                    int row = Cell.getRowFromCellID(cellIdentity);
-//
-//                    return (row >= topLeftRow && row <= bottomRightRow) &&
-//                            (col >= topLeftCol && col <= bottomRightCol);
-//                })
-//                .map(Map.Entry::getValue)
-//                .collect(Collectors.toList());
-
         for (int row = topLeftRow; row <= bottomRightRow; row++) {
             for (int col = topLeftCol; col <= bottomRightCol; col++) {
                 String cellIdentity = Cell.getCellIDFromRowCol(row, col);
@@ -310,10 +297,11 @@ public class Sheet implements Serializable {
     }
 
     public void setRangesFromFile(STLRanges stlRanges) {
-
         for(STLRange stlRange: stlRanges.getSTLRange()){
             addRange(new Range(stlRange.getName(),stlRange.getSTLBoundaries().getFrom(),stlRange.getSTLBoundaries().getTo(),this));
         }
+        List<Cell> topologicalOrder = sortActiveCellsTopologicallyByDFS();
+        recalculateByTopologicalOrder(topologicalOrder);
     }
 
     public Range getRange(String rangeName) {

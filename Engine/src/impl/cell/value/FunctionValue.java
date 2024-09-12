@@ -1,6 +1,7 @@
 package impl.cell.value;
 
 import api.CellValue;
+import exception.BooleanException;
 import exception.RangeDoesntExistException;
 import exception.WrongParenthesesOrderException;
 import impl.EngineImpl;
@@ -35,6 +36,9 @@ public class FunctionValue implements CellValue {
         }
         catch(ArithmeticException e){
             effectiveValue = "NaN";
+        }
+        catch (BooleanException e){
+            effectiveValue = "UNKNOWN";
         }
     }
 
@@ -104,62 +108,45 @@ public class FunctionValue implements CellValue {
             case DIVIDE:
             case MOD:
             case POW:
+            case PERCENT:
+                try {
+                    return evalForTwoDoubles();
+                }
+                catch (ClassCastException e) {
+                    throw new ArithmeticException(String.format("Error: One or more arguments are not valid. Ensure that all inputs for this function are numeric, e.g. {%s,4,5}.", functionType.name()));
+                }
             case BIGGER:
             case LESS:
                 try {
-                    checkNumOfArguments(2, "2 arguments");
-                    double arg1 = (double) arguments.get(0).eval();
-                    double arg2 = (double) arguments.get(1).eval();
-                    return functionType.apply(arg1, arg2);
+                    return evalForTwoDoubles();
                 }
                 catch (ClassCastException e) {
-                    throw new RuntimeException(String.format("Error: One or more arguments are not valid. Ensure that all inputs for this function are numeric, e.g. {%s,4,5}.", functionType.name()));
+                    throw new BooleanException(String.format("Error: One or more arguments are not valid. Ensure that all inputs for this function are numeric, e.g. {%s,4,5}.", functionType.name()));
                 }
             case ABS:
                 try {
-                    checkNumOfArguments(1, "1 argument");
-                    double arg = (double) arguments.getFirst().eval();
-                    return functionType.apply(arg);
+                    return evalForOneDouble();
                 }
                 catch (ClassCastException e) {
-                    throw new RuntimeException("Error: argument is not valid. Ensure that the input argument is numeric, e.g. {ABS,3}.");
+                    throw new ArithmeticException("Error: argument is not valid. Ensure that the input argument is numeric, e.g. {ABS,3}.");
                 }
             case CONCAT:
-                checkNumOfArguments(2, "2 arguments");
                 try {
-                    String str1 = (String) arguments.get(0).eval();
-                    String str2 = (String) arguments.get(1).eval();
-                    return functionType.apply(str1, str2);
+                    return evalForTwoStrings();
                 }
                 catch (ClassCastException e) {
-                    throw new RuntimeException("Error: One or more arguments are not valid. Ensure that all arguments are correctly formatted as text, e.g. {CONCAT,HELLO,WORLD}.");
+                    return "!UNDEFINED!";
                 }
             case SUB:
-                checkNumOfArguments(3, "3 arguments");
                 try {
-                    String str = (String) arguments.get(0).eval();
-                    int idx1 =  ((Double) arguments.get(1).eval()).intValue();
-                    int idx2 =  ((Double) arguments.get(2).eval()).intValue();
-                    return functionType.apply(str,idx1,idx2);
+                    return evalForSub();
                 }
                 catch (ClassCastException e) {
-                    throw new RuntimeException("Error: One or more arguments are not valid. Ensure that all arguments are correctly formatted as (source-text, start-index, end-index)  e.g. {SUB,HELLO,1,3}.");
-                }
-            case PERCENT:
-                checkNumOfArguments(2, "2 arguments");
-                try{
-                    double idx1 =  (Double) arguments.get(0).eval();
-                    double idx2 =  (Double) arguments.get(1).eval();
-                    return functionType.apply(idx1,idx2);
-                }
-                catch (ClassCastException e) {
-                    throw new RuntimeException(String.format("Error: One or more arguments are not valid. Ensure that all inputs for this function are numeric, e.g. {%s,4,5}.", functionType.name()));
+                    return "!UNDEFINED!";
                 }
             case REF:
-                checkNumOfArguments(1, "1 argument");
                 try {
-                    String str = (String) arguments.getFirst().eval();
-                    return functionType.apply(str, activatingCell).eval();
+                    return evalForRef();
                 }
                 catch (ClassCastException e) {
                         throw new RuntimeException("Error: argument is not valid. Ensure that the input argument is a cell identity, e.g. {REF,A4}.");
@@ -168,62 +155,120 @@ public class FunctionValue implements CellValue {
             case SUM:
             case AVERAGE:
                 try {
-                    checkNumOfArguments(1, "1 argument");
-                    String rangeName = (String) arguments.getFirst().eval();
-                    Range range = activatingCell.getSheet().getRange(rangeName);
-                    return functionType.apply(range);
+                    return evalForRanges();
                 }
                 catch (ClassCastException e) {
                     throw new RuntimeException("Error: argument is not valid. Ensure that the input argument is an existing range.");
                 }
-                catch (NoSuchElementException e)
-                {
-                    throw new RuntimeException("Error: No arguments provided. This function requires an argument to be passed.");
+                catch (RangeDoesntExistException e){
+                    throw new ArithmeticException(e.getMessage());
                 }
             case EQUAL:
-               checkNumOfArguments(2, "2 arguments");
-               Object obj1 =  arguments.get(0).eval();
-               Object obj2 =  arguments.get(1).eval();
-               return functionType.apply(obj1,obj2);
-
+                return evalForTwoObj();
             case NOT:
-                checkNumOfArguments(1, "1 argument");
                 try{
-                Boolean boolVal =  (Boolean) arguments.getFirst().eval();
-                    return functionType.apply(boolVal);
+                    return evalForOneBoolean();
                 }
                 catch (ClassCastException e) {
-                    throw new RuntimeException("Error: argument is not valid. Ensure that the input argument is a boolean expression, e.g. {NOT,TRUE}.");
+                    throw new BooleanException("Error: argument is not valid. Ensure that the input argument is a boolean expression, e.g. {NOT,TRUE}.");
                 }
             case AND:
             case OR:
-                checkNumOfArguments(2, "2 arguments");
                 try{
-                    Boolean exp1 =  (Boolean) arguments.get(0).eval();
-                    Boolean exp2 =  (Boolean) arguments.get(1).eval();
-                    return functionType.apply(exp1,exp2);
+                    return evalForTwoBooleans();
                 }
                 catch (ClassCastException e) {
-                    throw new RuntimeException(String.format("Error: One or more arguments are not valid. Ensure that all inputs for this function are boolean, e.g. {%s,TRUE,FALSE}", functionType.name()));
+                    throw new BooleanException(String.format("Error: One or more arguments are not valid. Ensure that all inputs for this function are boolean, e.g. {%s,TRUE,FALSE}", functionType.name()));
                 }
             case IF:
-                checkNumOfArguments(3, "3 arguments");
                 try{
-                    Boolean exp1 =  (Boolean) arguments.get(0).eval();
-                    Object exp2 =  arguments.get(1).eval();
-                    Object exp3 =  arguments.get(2).eval();
-
-                    return functionType.apply(exp1,exp2,exp3);
+                    return evalForIf();
                 }
                 catch (ClassCastException e) {
-                    throw new RuntimeException("Error: One or more arguments are not valid. Ensure that the first input for this function is boolean, e.g. {TRUE,4,5}");
+                    throw new BooleanException("Error: One or more arguments are not valid. Ensure that the first input for this function is boolean, e.g. {TRUE,4,5}");
                 }
-
-
-
         }
 
         return null;
+    }
+
+    private Object evalForIf() {
+        checkNumOfArguments(3, "3 arguments");
+        Boolean exp1 =  (Boolean) arguments.get(0).eval();
+        Object exp2 =  arguments.get(1).eval();
+        Object exp3 =  arguments.get(2).eval();
+        return functionType.apply(exp1, exp2, exp3);
+    }
+
+    private Boolean evalForTwoBooleans() {
+        checkNumOfArguments(2, "2 arguments");
+        Boolean exp1 =  (Boolean) arguments.get(0).eval();
+        Boolean exp2 =  (Boolean) arguments.get(1).eval();
+        return functionType.apply(exp1, exp2);
+    }
+
+    private Boolean evalForOneBoolean() {
+        checkNumOfArguments(1, "1 argument");
+        Boolean boolVal =  (Boolean) arguments.getFirst().eval();
+        return functionType.apply(boolVal);
+    }
+
+    private boolean evalForTwoObj() {
+        checkNumOfArguments(2, "2 arguments");
+        Object obj1 =  arguments.get(0).eval();
+        Object obj2 =  arguments.get(1).eval();
+        return functionType.apply(obj1, obj2);
+    }
+
+    private double evalForRanges() {
+        checkNumOfArguments(1, "1 argument");
+        String rangeName = (String) arguments.getFirst().eval();
+        Range range = activatingCell.getSheet().getRange(rangeName);
+        
+        if(range.getCells().contains(activatingCell)) {
+            throw new RuntimeException("Error: The cell on which the function was applied is part of the range given in the function.");
+        }
+
+        for(Cell cell : range.getCells()) {
+            cell.getCellsImInfluencing().add(activatingCell);
+            activatingCell.getCellsImDependentOn().add(cell);
+        }
+
+        return functionType.apply(range);
+    }
+
+    private Object evalForRef() {
+        checkNumOfArguments(1, "1 argument");
+        String str = (String) arguments.getFirst().eval();
+        return functionType.apply(str, activatingCell).eval();
+    }
+
+    private String evalForSub() {
+        checkNumOfArguments(3, "3 arguments");
+        String str = (String) arguments.get(0).eval();
+        int idx1 =  ((Double) arguments.get(1).eval()).intValue();
+        int idx2 =  ((Double) arguments.get(2).eval()).intValue();
+        return functionType.apply(str, idx1, idx2);
+    }
+
+    private String evalForTwoStrings() {
+        checkNumOfArguments(2, "2 arguments");
+        String str1 = (String) arguments.get(0).eval();
+        String str2 = (String) arguments.get(1).eval();
+        return functionType.apply(str1, str2);
+    }
+
+    private double evalForOneDouble() {
+        checkNumOfArguments(1, "1 argument");
+        double arg = (double) arguments.getFirst().eval();
+        return functionType.apply(arg);
+    }
+
+    private Object evalForTwoDoubles() {
+        checkNumOfArguments(2, "2 arguments");
+        double arg1 = (double) arguments.get(0).eval();
+        double arg2 = (double) arguments.get(1).eval();
+        return functionType.apply(arg1, arg2);
     }
 
     public enum FunctionType {
@@ -334,10 +379,14 @@ public class FunctionValue implements CellValue {
             public double apply(Range range){
                 double sum = 0;
                 for(Cell cell: range.getCells()){
-                    if(isDouble(cell.getEffectiveValue().eval())){
-                        sum += (double) cell.getEffectiveValue().eval();
+                    if(!cell.getEffectiveValue().getEffectiveValue().toString().equals("NaN"))
+                    {
+                        if(isDouble(cell.getEffectiveValue().eval())){
+                            sum += (double) cell.getEffectiveValue().eval();
+                        }
                     }
                 }
+
                 return sum;
             }
         },
@@ -353,7 +402,7 @@ public class FunctionValue implements CellValue {
                     }
                 }
                 if(count == 0){
-                        throw new ArithmeticException("Error: The specified range contains no numbers, which is not allowed. Please provide a valid range with at least one number.");
+                        throw new RuntimeException("Error: The specified range contains no numbers, which is not allowed. Please provide a valid range with at least one number.");
                 }
                 return sum/count;
             }
