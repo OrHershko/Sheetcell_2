@@ -60,7 +60,14 @@ public class MainGridController {
         for(CellDTO cellDTO : sheetDTO.getActiveCells().values())
         {
             CellComponentController cell = cellComponentControllers.get(cellDTO.getIdentity());
-            cell.setEffectiveValue(cellDTO.getEffectiveValue().getEffectiveValue().toString());
+            Object effectiveValue = cellDTO.getEffectiveValue().getEffectiveValue();
+            String effectiveValueStr = effectiveValue.toString();
+
+            if(effectiveValue instanceof Boolean){
+                effectiveValueStr = effectiveValueStr.toUpperCase();
+            }
+
+            cell.setEffectiveValue(effectiveValueStr);
             cell.setCell(cellDTO);
         }
 

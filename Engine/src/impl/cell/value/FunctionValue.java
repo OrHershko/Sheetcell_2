@@ -154,6 +154,7 @@ public class FunctionValue implements CellValue {
                     throw new RuntimeException(String.format("Error: One or more arguments are not valid. Ensure that all inputs for this function are numeric, e.g. {%s,4,5}.", functionType.name()));
                 }
             case REF:
+                checkNumOfArguments(1, "1 argument");
                 try {
                     String str = (String) arguments.getFirst().eval();
                     return functionType.apply(str, activatingCell).eval();
@@ -177,6 +178,12 @@ public class FunctionValue implements CellValue {
                 {
                     throw new RuntimeException("Error: No arguments provided. This function requires an argument to be passed.");
                 }
+           case EQUAL:
+
+               checkNumOfArguments(2, "2 arguments");
+               Object obj1 =  arguments.get(0).eval();
+               Object obj2 =  arguments.get(1).eval();
+               return functionType.apply(obj1,obj2);
         }
         return null;
     }
@@ -312,10 +319,22 @@ public class FunctionValue implements CellValue {
                 }
                 return sum/count;
             }
+        },
+        EQUAL{
+            @Override
+            public boolean apply (Object obj1, Object obj2){
+                return obj1.equals(obj2);
+            }
+
         };
+
 
         public double apply(double arg1, double arg2) {
             throw new UnsupportedOperationException("Error: This function does not support numeric operations");
+        }
+
+        public boolean apply(Object obj1, Object obj2){
+            throw new UnsupportedOperationException("Error: This function does not support boolean operations");
         }
 
         public String apply(String str1, String str2) {
