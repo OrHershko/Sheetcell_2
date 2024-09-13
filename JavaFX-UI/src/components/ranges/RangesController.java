@@ -93,7 +93,7 @@ public class RangesController {
     }
 
     // פונקציה לבקשת מיקום תא
-    private String requestCellPosition(String title, String headerText) {
+    public static String requestCellPosition(String title, String headerText) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle(title);
         dialog.setHeaderText(headerText);

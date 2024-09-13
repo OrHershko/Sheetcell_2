@@ -106,8 +106,7 @@ public class MainGridController {
         createColsInGrid(numOfCols);
         createRowsInGrid(numOfRows);
         createEmptyCellsInGrid(numOfRows, numOfCols);
-        //bindRowsToCells();
-        //bindColsToCells();
+
     }
 
     private void createEmptyCellsInGrid(int numOfRows, int numOfCols) throws IOException {

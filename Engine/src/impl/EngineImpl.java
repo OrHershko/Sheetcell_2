@@ -15,6 +15,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -296,4 +297,77 @@ public class EngineImpl implements Engine {
         currentSheet.deleteRange(rangeName);
 
     }
+
+    @Override
+    public DTO getSortedSheetDTO(List<String> columnsToSortBy, String topLeft, String bottomRight) {
+        checkForLoadedFile(); // Make sure that a sheet is loaded
+
+        // 1. Create a list of rows where each row is a map entry (row number -> list of cells)
+        List<Map.Entry<Integer, List<Cell>>> rowsList = new ArrayList<>();
+
+        int topLeftRow = Cell.getRowFromCellID(topLeft);
+        int topLeftCol = Cell.getColumnFromCellID(topLeft);
+        int bottomRightRow = Cell.getRowFromCellID(bottomRight);
+        int bottomRightCol = Cell.getColumnFromCellID(bottomRight);
+
+        // Populate the list with row entries
+        for (int row = topLeftRow; row <= bottomRightRow; row++) {
+            List<Cell> cellsInRow = new ArrayList<>();
+            for (int col = topLeftCol; col <= bottomRightCol; col++) {
+                String cellID = Cell.getCellIDFromRowCol(row, col);
+                Cell cell = currentSheet.getCell(cellID);
+                if (cell != null) {
+                    cellsInRow.add(cell);
+                }
+            }
+            rowsList.add(Map.entry(row, cellsInRow));
+        }
+
+        // 2. Sort the rows by columns in reverse order (starting from the last column in columnsToSortBy)
+        for (int i = columnsToSortBy.size() - 1; i >= 0; i--) {
+            String columnToSortBy = columnsToSortBy.get(i).replace("Column ", "").trim();
+            int colToSortBy = Cell.getColumnFromCellID(columnToSortBy + "1"); // Get column index
+
+            // Sort the list of rows based on the current column
+            rowsList.sort((entry1, entry2) -> {
+                // Get the effective values for the column to sort by
+                Cell cell1 = entry1.getValue().get(colToSortBy - topLeftCol);
+                Cell cell2 = entry2.getValue().get(colToSortBy - topLeftCol);
+
+                Comparable value1 = (Comparable) cell1.getEffectiveValue().getEffectiveValue();
+                Comparable value2 = (Comparable) cell2.getEffectiveValue().getEffectiveValue();
+
+                // Handle null values, ensuring nulls go to the end
+                if (value1 == null && value2 == null) return 0;
+                if (value1 == null) return 1; // Place nulls at the end
+                if (value2 == null) return -1;
+
+                // Perform the comparison
+                return value1.compareTo(value2);
+            });
+        }
+
+        // 3. Create the sorted DTO
+        Sheet sortedSheet = currentSheet.clone(); // Create a copy of the current sheet
+
+        int currentRow = topLeftRow;
+
+        for (Map.Entry<Integer, List<Cell>> entry : rowsList) {
+            List<Cell> cellsInRow = entry.getValue();
+            int currentCol = topLeftCol;
+
+            for (Cell cell : cellsInRow) {
+                String newCellID = Cell.getCellIDFromRowCol(currentRow, currentCol);
+                sortedSheet.updateOrCreateCell(newCellID, cell.getEffectiveValue(), cell.getOriginalValue(), false);
+
+                currentCol++;
+            }
+
+            currentRow++;
+        }
+        // Return the sorted sheet as a DTO
+        return DTOFactory.createSheetDTO(sortedSheet);
+    }
+
+
 }

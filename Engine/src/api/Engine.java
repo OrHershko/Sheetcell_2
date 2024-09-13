@@ -4,6 +4,7 @@ package api;
 import impl.Range;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public interface Engine {
@@ -21,4 +22,5 @@ public interface Engine {
     void addNewRange(String topLeftCell, String bottomRightCell, String rangeName);
     DTO getRangeDTOFromSheet(String rangeName);
     void deleteRangeFromSheet(String rangeName);
+    DTO getSortedSheetDTO(List<String> columnToSortBy, String topLeft, String bottomRight);
 }

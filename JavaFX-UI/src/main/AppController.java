@@ -10,12 +10,14 @@ import components.loadfile.LoadFileController;
 import components.maingrid.MainGridController;
 import components.maingrid.cell.CellComponentController;
 import components.ranges.RangesController;
+import components.sortandfilter.SortAndFilterController;
 import components.versions.VersionsSelectorComponentController;
 import dto.CellDTO;
 import dto.DTOFactoryImpl;
 import dto.RangeDTO;
 import dto.SheetDTO;
 import impl.EngineImpl;
+import impl.cell.Cell;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -36,6 +38,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -85,6 +88,12 @@ public class AppController {
     private MenuButton versionsSelectorComponent;
 
     @FXML
+    private VBox sortAndFilterComponent;
+
+    @FXML
+    private SortAndFilterController sortAndFilterComponentController;
+
+    @FXML
     private VersionsSelectorComponentController versionsSelectorComponentController;
 
     private final Engine engine = new EngineImpl(new DTOFactoryImpl());
@@ -102,6 +111,7 @@ public class AppController {
         commandsComponentController.setAppController(this);
         rangesComponentController.setAppController(this);
         versionsSelectorComponentController.setAppController(this);
+        sortAndFilterComponentController.setAppController(this);
         try {
             createPreviousVersionStage();
         } catch (IOException ignored) {
@@ -267,5 +277,29 @@ public class AppController {
         RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName);
         engine.deleteRangeFromSheet(rangeName);
         mainGridComponentController.unmarkCellsInRange(rangeDTO.getCells());
+    }
+
+    public boolean checkRangeOfCells(String topLeft, String bottomRight) {
+        return engine.isCellInBounds(Cell.getRowFromCellID(topLeft) - 1,Cell.getColumnFromCellID(topLeft) - 1)
+                && engine.isCellInBounds(Cell.getRowFromCellID(bottomRight) - 1,Cell.getColumnFromCellID(bottomRight) - 1);
+    }
+
+    public void sortSheetByColumns(List<String> columnToSortBy, String topLeft, String bottomRight){
+    try {
+        SheetDTO sortedSheetDTO = (SheetDTO) engine.getSortedSheetDTO(columnToSortBy, topLeft, bottomRight);
+        ScrollPane scrollPane = (ScrollPane) previousVersionStage.getScene().getRoot();
+        GridPane gridPane = (GridPane) scrollPane.getContent();
+        MainGridController controller = (MainGridController) gridPane.getUserData();
+        controller.createDynamicGrid(sortedSheetDTO);
+        controller.buildGridBoundaries(sortedSheetDTO);
+        controller.createInnerCellsInGrid(sortedSheetDTO);
+        controller.disableGrid(true);
+
+        if (!previousVersionStage.isShowing()) {
+            previousVersionStage.show();
+        }
+    }
+    catch (IOException ignored) {}
+
     }
 }
