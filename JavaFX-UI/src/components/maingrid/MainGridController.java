@@ -3,7 +3,6 @@ package components.maingrid;
 import components.maingrid.cell.CellComponentController;
 import dto.CellDTO;
 import dto.SheetDTO;
-import impl.cell.Cell;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -60,7 +59,7 @@ public class MainGridController {
         for(CellDTO cellDTO : sheetDTO.getActiveCells().values())
         {
             CellComponentController cell = cellComponentControllers.get(cellDTO.getIdentity());
-            Object effectiveValue = cellDTO.getEffectiveValue().getEffectiveValue();
+            Object effectiveValue = cellDTO.getEffectiveValue().getValue();
             String effectiveValueStr = effectiveValue.toString();
 
             if(effectiveValue instanceof Boolean){

@@ -15,10 +15,8 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class EngineImpl implements Engine {
     private static Sheet currentSheet;
@@ -286,7 +284,7 @@ public class EngineImpl implements Engine {
             if(cell.getEffectiveValue() instanceof FunctionValue functionValue) {
                 if(functionValue.getFunctionType().equals(FunctionValue.FunctionType.AVERAGE) || functionValue.getFunctionType().equals(FunctionValue.FunctionType.SUM))
                 {
-                    if(functionValue.getArguments().getFirst().getEffectiveValue().equals(rangeName))
+                    if(functionValue.getArguments().getFirst().getValue().equals(rangeName))
                     {
                         throw new RangeUsedInFunctionException("The range '" + rangeName + "cannot be deleted because it is used in a function.");
                     }
@@ -300,55 +298,43 @@ public class EngineImpl implements Engine {
 
     @Override
     public DTO getSortedSheetDTO(List<String> columnsToSortBy, String topLeft, String bottomRight) {
-        checkForLoadedFile(); // Make sure that a sheet is loaded
-
-        // 1. Create a list of rows where each row is a map entry (row number -> list of cells)
-        List<Map.Entry<Integer, List<Cell>>> rowsList = new ArrayList<>();
 
         int topLeftRow = Cell.getRowFromCellID(topLeft);
         int topLeftCol = Cell.getColumnFromCellID(topLeft);
         int bottomRightRow = Cell.getRowFromCellID(bottomRight);
         int bottomRightCol = Cell.getColumnFromCellID(bottomRight);
 
-        // Populate the list with row entries
-        for (int row = topLeftRow; row <= bottomRightRow; row++) {
-            List<Cell> cellsInRow = new ArrayList<>();
-            for (int col = topLeftCol; col <= bottomRightCol; col++) {
-                String cellID = Cell.getCellIDFromRowCol(row, col);
-                Cell cell = currentSheet.getCell(cellID);
-                if (cell != null) {
-                    cellsInRow.add(cell);
-                }
-            }
-            rowsList.add(Map.entry(row, cellsInRow));
-        }
+        List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
+        sortRowsList(columnsToSortBy, rowsList, topLeftCol);
+        Sheet sortedSheet = createModifiedSheet(topLeftRow, rowsList, topLeftCol);
+        return DTOFactory.createSheetDTO(sortedSheet);
+    }
 
-        // 2. Sort the rows by columns in reverse order (starting from the last column in columnsToSortBy)
+    private void sortRowsList(List<String> columnsToSortBy, List<Map.Entry<Integer, List<Cell>>> rowsList, int topLeftCol) {
+
         for (int i = columnsToSortBy.size() - 1; i >= 0; i--) {
             String columnToSortBy = columnsToSortBy.get(i).replace("Column ", "").trim();
             int colToSortBy = Cell.getColumnFromCellID(columnToSortBy + "1"); // Get column index
 
-            // Sort the list of rows based on the current column
             rowsList.sort((entry1, entry2) -> {
-                // Get the effective values for the column to sort by
                 Cell cell1 = entry1.getValue().get(colToSortBy - topLeftCol);
                 Cell cell2 = entry2.getValue().get(colToSortBy - topLeftCol);
 
-                Comparable value1 = (Comparable) cell1.getEffectiveValue().getEffectiveValue();
-                Comparable value2 = (Comparable) cell2.getEffectiveValue().getEffectiveValue();
+                Comparable value1 = (Comparable) cell1.getEffectiveValue().getValue();
+                Comparable value2 = (Comparable) cell2.getEffectiveValue().getValue();
 
-                // Handle null values, ensuring nulls go to the end
                 if (value1 == null && value2 == null) return 0;
-                if (value1 == null) return 1; // Place nulls at the end
+                if (value1 == null) return 1;
                 if (value2 == null) return -1;
 
-                // Perform the comparison
                 return value1.compareTo(value2);
             });
         }
+    }
 
-        // 3. Create the sorted DTO
-        Sheet sortedSheet = currentSheet.clone(); // Create a copy of the current sheet
+    private Sheet createModifiedSheet(int topLeftRow, List<Map.Entry<Integer, List<Cell>>> rowsList, int topLeftCol) {
+        Sheet sortedSheet = currentSheet.clone();
+        sortedSheet.getActiveCells().clear();
 
         int currentRow = topLeftRow;
 
@@ -365,8 +351,58 @@ public class EngineImpl implements Engine {
 
             currentRow++;
         }
-        // Return the sorted sheet as a DTO
-        return DTOFactory.createSheetDTO(sortedSheet);
+        return sortedSheet;
+    }
+
+    private List<Map.Entry<Integer, List<Cell>>> createListOfRows(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol) {
+        List<Map.Entry<Integer, List<Cell>>> rowsList = new ArrayList<>();
+
+        for (int row = topLeftRow; row <= bottomRightRow; row++) {
+            List<Cell> cellsInRow = new ArrayList<>();
+            for (int col = topLeftCol; col <= bottomRightCol; col++) {
+                String cellID = Cell.getCellIDFromRowCol(row, col);
+                Cell cell = currentSheet.getCell(cellID);
+                if (cell != null) {
+                    cellsInRow.add(cell);
+                }
+            }
+            rowsList.add(Map.entry(row, cellsInRow));
+        }
+
+        return rowsList;
+    }
+
+    @Override
+    public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight) {
+
+        return currentSheet.getCellsInRange(topLeft, bottomRight)
+                .stream()
+                .filter(cell -> column.equals(String.valueOf(cell.getIdentity().charAt(0))))
+                .map(cell-> cell.getEffectiveValue().getValue().toString())
+                .collect(Collectors.toSet());
+    }
+
+    private void filterRowsList(Map<String, String> colToSelectedValues, List<Map.Entry<Integer, List<Cell>>> rowsList) {
+        for(Map.Entry<String, String> entry : colToSelectedValues.entrySet()) {
+            rowsList.removeIf(row -> row.getValue()
+                    .stream()
+                    .filter(cell -> entry.getKey().equals(String.valueOf(cell.getIdentity().charAt(0))))
+                    .noneMatch(cell -> cell.getEffectiveValue().getValue().toString().equals(entry.getValue())));
+        }
+    }
+
+
+    @Override
+    public DTO getFilteredSheetDTO(Map<String, String> colToSelectedValues, String topLeft, String bottomRight) {
+        int topLeftRow = Cell.getRowFromCellID(topLeft);
+        int topLeftCol = Cell.getColumnFromCellID(topLeft);
+        int bottomRightRow = Cell.getRowFromCellID(bottomRight);
+        int bottomRightCol = Cell.getColumnFromCellID(bottomRight);
+
+        List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
+        filterRowsList(colToSelectedValues, rowsList);
+        Sheet filteredSheet = createModifiedSheet(topLeftRow, rowsList, topLeftCol);
+        return DTOFactory.createSheetDTO(filteredSheet);
     }
 
 

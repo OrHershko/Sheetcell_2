@@ -8,7 +8,10 @@ import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import main.AppController;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 public class SortAndFilterController {
@@ -26,28 +29,48 @@ public class SortAndFilterController {
     }
 
     @FXML
+    private void initialize() {
+        sortButton.setDisable(true);
+        filterButton.setDisable(true);
+    }
+
+    public void disableButtons(boolean disable) {
+        sortButton.setDisable(disable);
+        filterButton.setDisable(disable);
+    }
+
+    @FXML
     private void sortOnClick() {
         try {
-            // Load the FXML file for range input
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/components/sortandfilter/SortGetRangePopUp.fxml"));
-            Parent root = fxmlLoader.load();
-
-            SortGetRangePopUpController controller = fxmlLoader.getController();
-            controller.setSortAndFilterController(this);
-
-            // Create a new stage (window)
-            Stage stage = new Stage();
-            stage.setTitle("Enter Range");
-            stage.setScene(new Scene(root, 400, 200)); // Adjust the scene size if needed
-            stage.show();
+            openGetRangeDialog(true);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private void openGetRangeDialog(boolean isSorting) throws IOException {
+        // Load the FXML file for range input
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/components/sortandfilter/GetRangePopUp.fxml"));
+        Parent root = fxmlLoader.load();
+
+        GetRangePopUpController controller = fxmlLoader.getController();
+        controller.setSortingOperation(isSorting);
+        controller.setSortAndFilterController(this);
+
+        // Create a new stage (window)
+        Stage stage = new Stage();
+        stage.setTitle("Enter Range");
+        stage.setScene(new Scene(root, 400, 200)); // Adjust the scene size if needed
+        stage.show();
+    }
+
     @FXML
     private void filterOnClick() {
-
+        try {
+            openGetRangeDialog(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isRangeValid(String topLeft, String bottomRight) {
@@ -61,5 +84,13 @@ public class SortAndFilterController {
 
     public void sort(List<String> columnToSortBy, String topLeft, String bottomRight) {
         appController.sortSheetByColumns(columnToSortBy, topLeft, bottomRight);
+    }
+
+    public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight) {
+        return appController.getValuesFromColumn(column,topLeft,bottomRight);
+    }
+
+    public void filter(Map<String, String> colToSelectedValues, String topLeft, String bottomRight) {
+        appController.filter(colToSelectedValues,topLeft,bottomRight);
     }
 }

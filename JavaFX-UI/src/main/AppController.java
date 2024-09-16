@@ -98,7 +98,7 @@ public class AppController {
 
     private final Engine engine = new EngineImpl(new DTOFactoryImpl());
 
-    private Stage previousVersionStage;  // משתנה סינגלטון עבור ה-Stage
+    private Stage sheetPopUpStage;  // משתנה סינגלטון עבור ה-Stage
 
     private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // נכס עבור מספר הגרסה
 
@@ -113,7 +113,7 @@ public class AppController {
         versionsSelectorComponentController.setAppController(this);
         sortAndFilterComponentController.setAppController(this);
         try {
-            createPreviousVersionStage();
+            sheetPopUpStage();
         } catch (IOException ignored) {
         }
     }
@@ -128,6 +128,7 @@ public class AppController {
                 commandsComponentController.disableButtons(false);
                 rangesComponentController.disableButtons(false);
                 versionsSelectorComponentController.disable(false);
+                sortAndFilterComponentController.disableButtons(false);
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -232,7 +233,10 @@ public class AppController {
     public void loadPreviousVersion(int selectedVersion) {
         try {
             currentPreviousVersion.set(selectedVersion);
-            ScrollPane scrollPane = (ScrollPane) previousVersionStage.getScene().getRoot();
+            sheetPopUpStage.titleProperty().bind(
+                    currentPreviousVersion.asString("Previous Sheet Version - Version %d")
+            );
+            ScrollPane scrollPane = (ScrollPane) sheetPopUpStage.getScene().getRoot();
             GridPane gridPane = (GridPane) scrollPane.getContent();
             MainGridController controller = (MainGridController) gridPane.getUserData();
             SheetDTO previousSheetDTO = (SheetDTO) engine.getSheetsPreviousVersionsDTO().get(selectedVersion);
@@ -241,8 +245,8 @@ public class AppController {
             controller.createInnerCellsInGrid(previousSheetDTO);
             controller.disableGrid(true);
 
-            if (!previousVersionStage.isShowing()) {
-                previousVersionStage.show();
+            if (!sheetPopUpStage.isShowing()) {
+                sheetPopUpStage.show();
             }
 
         } catch (IOException e) {
@@ -250,8 +254,8 @@ public class AppController {
         }
     }
 
-    private void createPreviousVersionStage() throws IOException {
-        if (previousVersionStage == null) {
+    private void sheetPopUpStage() throws IOException {
+        if (sheetPopUpStage == null) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/maingrid/mainGrid.fxml"));
             Parent root = loader.load();
             MainGridController controller = loader.getController();
@@ -261,14 +265,14 @@ public class AppController {
             scrollPane.setFitToHeight(true);
             scrollPane.setFitToWidth(true);
 
-            previousVersionStage = new Stage();
-            previousVersionStage.titleProperty().bind(
-                    currentPreviousVersion.asString("Previous Sheet Version - Version %d")
-            );
-            previousVersionStage.initModality(Modality.APPLICATION_MODAL);
+            sheetPopUpStage = new Stage();
+//            sheetPopUpStage.titleProperty().bind(
+//                    currentPreviousVersion.asString("Previous Sheet Version - Version %d")
+//            );
+            sheetPopUpStage.initModality(Modality.APPLICATION_MODAL);
             Scene scene = new Scene(scrollPane);
             scene.getStylesheets().add(getClass().getResource("/components/maingrid/cell/CellComponent.css").toExternalForm());
-            previousVersionStage.setScene(scene);
+            sheetPopUpStage.setScene(scene);
             root.setUserData(controller);
         }
     }
@@ -286,8 +290,10 @@ public class AppController {
 
     public void sortSheetByColumns(List<String> columnToSortBy, String topLeft, String bottomRight){
     try {
+        sheetPopUpStage.titleProperty().unbind();
+        sheetPopUpStage.setTitle("Sorted Sheet");
         SheetDTO sortedSheetDTO = (SheetDTO) engine.getSortedSheetDTO(columnToSortBy, topLeft, bottomRight);
-        ScrollPane scrollPane = (ScrollPane) previousVersionStage.getScene().getRoot();
+        ScrollPane scrollPane = (ScrollPane) sheetPopUpStage.getScene().getRoot();
         GridPane gridPane = (GridPane) scrollPane.getContent();
         MainGridController controller = (MainGridController) gridPane.getUserData();
         controller.createDynamicGrid(sortedSheetDTO);
@@ -295,11 +301,37 @@ public class AppController {
         controller.createInnerCellsInGrid(sortedSheetDTO);
         controller.disableGrid(true);
 
-        if (!previousVersionStage.isShowing()) {
-            previousVersionStage.show();
+        if (!sheetPopUpStage.isShowing()) {
+            sheetPopUpStage.show();
         }
     }
     catch (IOException ignored) {}
+
+    }
+
+    public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight) {
+
+        return engine.getValuesFromColumn(column,topLeft,bottomRight);
+    }
+
+    public void filter(Map<String, String> colToSelectedValues, String topLeft, String bottomRight) {
+        try {
+            sheetPopUpStage.titleProperty().unbind();
+            sheetPopUpStage.setTitle("Filtered Sheet");
+            SheetDTO filteredSheetDTO = (SheetDTO) engine.getFilteredSheetDTO(colToSelectedValues, topLeft, bottomRight);
+            ScrollPane scrollPane = (ScrollPane) sheetPopUpStage.getScene().getRoot();
+            GridPane gridPane = (GridPane) scrollPane.getContent();
+            MainGridController controller = (MainGridController) gridPane.getUserData();
+            controller.createDynamicGrid(filteredSheetDTO);
+            controller.buildGridBoundaries(filteredSheetDTO);
+            controller.createInnerCellsInGrid(filteredSheetDTO);
+            controller.disableGrid(true);
+
+            if (!sheetPopUpStage.isShowing()) {
+                sheetPopUpStage.show();
+            }
+        }
+        catch (IOException ignored) {}
 
     }
 }

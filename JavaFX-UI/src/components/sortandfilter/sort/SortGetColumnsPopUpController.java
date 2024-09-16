@@ -1,5 +1,7 @@
-package components.sortandfilter;
+package components.sortandfilter.sort;
 
+import components.sortandfilter.ColumnActionController;
+import components.sortandfilter.GetRangePopUpController;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -13,13 +15,13 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SortGetColumnsPopUpController {
+public class SortGetColumnsPopUpController implements ColumnActionController {
 
     @FXML
     private ScrollPane scrollPane;
 
     @FXML
-    private VBox SortGetColumnsPopUp;
+    private VBox sortGetColumnsPopUp;
 
     @FXML
     private ChoiceBox<String> columnsChoiceBox;
@@ -30,41 +32,9 @@ public class SortGetColumnsPopUpController {
     @FXML
     private Button sortButton;
 
-    private SortGetRangePopUpController sortGetRangePopUpController;
+    private GetRangePopUpController getRangePopUpController;
 
     private List<ChoiceBox<String>> addedColumns = new ArrayList<>();
-
-    public void setSortGetRangePopUpController(SortGetRangePopUpController sortGetRangePopUpController) {
-        this.sortGetRangePopUpController = sortGetRangePopUpController;
-    }
-
-
-    public void initChoiceBox(String topLeft, String bottomRight) {
-
-        String startColumn = topLeft.replaceAll("\\d", "");
-        String endColumn = bottomRight.replaceAll("\\d", "");
-
-        List<String> columnRange = getColumnRange(startColumn, endColumn);
-
-        columnsChoiceBox.getItems().clear();
-        for (String column : columnRange) {
-            columnsChoiceBox.getItems().add("Column " + column); // Add "Column" before each column letter
-        }
-        columnsChoiceBox.setValue("Choose Column");
-    }
-
-    private List<String> getColumnRange(String start, String end) {
-        List<String> columns = new ArrayList<>();
-
-        int startChar = start.charAt(0);
-        int endChar = end.charAt(0);
-
-        for (int i = startChar; i <= endChar; i++) {
-            columns.add(String.valueOf((char) i));
-        }
-        return columns;
-    }
-
 
 
     @FXML
@@ -80,7 +50,7 @@ public class SortGetColumnsPopUpController {
         Insets padding = new Insets(10.0, 10.0, 10.0, 10.0);
         newHBox.setPadding(padding);
 
-        SortGetColumnsPopUp.getChildren().add(SortGetColumnsPopUp.getChildren().size() - 2, newHBox); // הוספתו לפני הכפתור "Sort"
+        sortGetColumnsPopUp.getChildren().add(sortGetColumnsPopUp.getChildren().size() - 2, newHBox); // הוספתו לפני הכפתור "Sort"
         Stage stage = (Stage) scrollPane.getScene().getWindow();
         stage.sizeToScene();
     }
@@ -93,6 +63,16 @@ public class SortGetColumnsPopUpController {
             columnToSortBy.add(column.getValue());
         }
 
-        sortGetRangePopUpController.sort(columnToSortBy);
+        getRangePopUpController.sort(columnToSortBy);
+    }
+
+    @Override
+    public void setChoiceBox(ChoiceBox<String> choiceBox) {
+        this.columnsChoiceBox.setItems(choiceBox.getItems());
+    }
+
+    @Override
+    public void setGetRangePopUpController(GetRangePopUpController getRangePopUpController) {
+        this.getRangePopUpController = getRangePopUpController;
     }
 }

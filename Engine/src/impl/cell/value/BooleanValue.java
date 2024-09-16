@@ -12,7 +12,7 @@ public class BooleanValue implements CellValue {
     }
 
     @Override
-    public String getEffectiveValue() {
+    public String getValue() {
         return Boolean.toString(value).toUpperCase();
     }
 

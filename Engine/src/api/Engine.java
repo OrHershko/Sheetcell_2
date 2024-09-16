@@ -6,6 +6,7 @@ import impl.Range;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface Engine {
     void loadFile(String filePath) throws IOException;
@@ -23,4 +24,6 @@ public interface Engine {
     DTO getRangeDTOFromSheet(String rangeName);
     void deleteRangeFromSheet(String rangeName);
     DTO getSortedSheetDTO(List<String> columnToSortBy, String topLeft, String bottomRight);
+    Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight);
+    DTO getFilteredSheetDTO(Map<String, String> colToSelectedValues, String topLeft, String bottomRight);
 }

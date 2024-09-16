@@ -12,7 +12,7 @@ public class NumericValue implements CellValue {
     }
 
     @Override
-    public String getEffectiveValue() {
+    public String getValue() {
         if (value % 1 == 0) {
             return String.format("%,d", value.longValue());
         } else {

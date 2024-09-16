@@ -11,7 +11,6 @@ import impl.cell.Cell;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 
 public class FunctionValue implements CellValue {
@@ -379,7 +378,7 @@ public class FunctionValue implements CellValue {
             public double apply(Range range){
                 double sum = 0;
                 for(Cell cell: range.getCells()){
-                    if(!cell.getEffectiveValue().getEffectiveValue().toString().equals("NaN"))
+                    if(!cell.getEffectiveValue().getValue().toString().equals("NaN"))
                     {
                         if(isDouble(cell.getEffectiveValue().eval())){
                             sum += (double) cell.getEffectiveValue().eval();
@@ -534,7 +533,7 @@ public class FunctionValue implements CellValue {
     }
 
     @Override
-    public Object getEffectiveValue() {
+    public Object getValue() {
         if(effectiveValue instanceof Double num)
         {
             return convertToIntIfWholeNumber(num);

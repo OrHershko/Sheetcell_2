@@ -12,7 +12,7 @@ public class StringValue implements CellValue {
     }
 
     @Override
-    public String getEffectiveValue() {
+    public String getValue() {
         return value;
     }
 
