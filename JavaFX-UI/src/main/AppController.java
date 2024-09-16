@@ -293,17 +293,7 @@ public class AppController {
         sheetPopUpStage.titleProperty().unbind();
         sheetPopUpStage.setTitle("Sorted Sheet");
         SheetDTO sortedSheetDTO = (SheetDTO) engine.getSortedSheetDTO(columnToSortBy, topLeft, bottomRight);
-        ScrollPane scrollPane = (ScrollPane) sheetPopUpStage.getScene().getRoot();
-        GridPane gridPane = (GridPane) scrollPane.getContent();
-        MainGridController controller = (MainGridController) gridPane.getUserData();
-        controller.createDynamicGrid(sortedSheetDTO);
-        controller.buildGridBoundaries(sortedSheetDTO);
-        controller.createInnerCellsInGrid(sortedSheetDTO);
-        controller.disableGrid(true);
-
-        if (!sheetPopUpStage.isShowing()) {
-            sheetPopUpStage.show();
-        }
+        displaySheetPopUp(sortedSheetDTO, topLeft, bottomRight);
     }
     catch (IOException ignored) {}
 
@@ -314,24 +304,29 @@ public class AppController {
         return engine.getValuesFromColumn(column,topLeft,bottomRight);
     }
 
-    public void filter(Map<String, String> colToSelectedValues, String topLeft, String bottomRight) {
+    public void filter(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight) {
         try {
             sheetPopUpStage.titleProperty().unbind();
             sheetPopUpStage.setTitle("Filtered Sheet");
             SheetDTO filteredSheetDTO = (SheetDTO) engine.getFilteredSheetDTO(colToSelectedValues, topLeft, bottomRight);
-            ScrollPane scrollPane = (ScrollPane) sheetPopUpStage.getScene().getRoot();
-            GridPane gridPane = (GridPane) scrollPane.getContent();
-            MainGridController controller = (MainGridController) gridPane.getUserData();
-            controller.createDynamicGrid(filteredSheetDTO);
-            controller.buildGridBoundaries(filteredSheetDTO);
-            controller.createInnerCellsInGrid(filteredSheetDTO);
-            controller.disableGrid(true);
-
-            if (!sheetPopUpStage.isShowing()) {
-                sheetPopUpStage.show();
-            }
+            displaySheetPopUp(filteredSheetDTO, topLeft, bottomRight);
         }
         catch (IOException ignored) {}
 
+    }
+
+    private void displaySheetPopUp(SheetDTO filteredSheetDTO, String topLeft, String bottomRight) throws IOException {
+        ScrollPane scrollPane = (ScrollPane) sheetPopUpStage.getScene().getRoot();
+        GridPane gridPane = (GridPane) scrollPane.getContent();
+        MainGridController controller = (MainGridController) gridPane.getUserData();
+        controller.createDynamicGrid(filteredSheetDTO);
+        controller.buildGridBoundaries(filteredSheetDTO);
+        controller.createInnerCellsInGrid(filteredSheetDTO);
+        //controller.markFilterArea(topLeft, bottomRight);
+        controller.disableGrid(true);
+
+        if (!sheetPopUpStage.isShowing()) {
+            sheetPopUpStage.show();
+        }
     }
 }

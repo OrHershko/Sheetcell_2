@@ -306,7 +306,7 @@ public class EngineImpl implements Engine {
 
         List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
         sortRowsList(columnsToSortBy, rowsList, topLeftCol);
-        Sheet sortedSheet = createModifiedSheet(topLeftRow, rowsList, topLeftCol);
+        Sheet sortedSheet = createModifiedSheet(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, rowsList);
         return DTOFactory.createSheetDTO(sortedSheet);
     }
 
@@ -332,10 +332,14 @@ public class EngineImpl implements Engine {
         }
     }
 
-    private Sheet createModifiedSheet(int topLeftRow, List<Map.Entry<Integer, List<Cell>>> rowsList, int topLeftCol) {
-        Sheet sortedSheet = currentSheet.clone();
-        sortedSheet.getActiveCells().clear();
+    private Sheet createModifiedSheet(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol, List<Map.Entry<Integer, List<Cell>>> rowsList) {
+        Sheet modifiedSheet = currentSheet.clone();
+        clearRangeValues(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, modifiedSheet);
+        updateRangeFromRowsList(topLeftRow, topLeftCol, rowsList, modifiedSheet);
+        return modifiedSheet;
+    }
 
+    private static void updateRangeFromRowsList(int topLeftRow, int topLeftCol, List<Map.Entry<Integer, List<Cell>>> rowsList, Sheet modifiedSheet) {
         int currentRow = topLeftRow;
 
         for (Map.Entry<Integer, List<Cell>> entry : rowsList) {
@@ -344,14 +348,25 @@ public class EngineImpl implements Engine {
 
             for (Cell cell : cellsInRow) {
                 String newCellID = Cell.getCellIDFromRowCol(currentRow, currentCol);
-                sortedSheet.updateOrCreateCell(newCellID, cell.getEffectiveValue(), cell.getOriginalValue(), false);
+                modifiedSheet.updateOrCreateCell(newCellID, cell.getEffectiveValue(), cell.getOriginalValue(), false);
 
                 currentCol++;
             }
 
             currentRow++;
         }
-        return sortedSheet;
+    }
+
+    private void clearRangeValues(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol, Sheet modifiedSheet) {
+        for (int row = topLeftRow; row <= bottomRightRow; row++) {
+            for (int col = topLeftCol; col <= bottomRightCol; col++) {
+                String cellId = Cell.getCellIDFromRowCol(row, col);
+                Cell cell = modifiedSheet.getActiveCells().get(cellId);
+                if (cell != null) {
+                    modifiedSheet.updateOrCreateCell(cellId, new StringValue(""), "", false);
+                }
+            }
+        }
     }
 
     private List<Map.Entry<Integer, List<Cell>>> createListOfRows(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol) {
@@ -382,18 +397,29 @@ public class EngineImpl implements Engine {
                 .collect(Collectors.toSet());
     }
 
-    private void filterRowsList(Map<String, String> colToSelectedValues, List<Map.Entry<Integer, List<Cell>>> rowsList) {
-        for(Map.Entry<String, String> entry : colToSelectedValues.entrySet()) {
-            rowsList.removeIf(row -> row.getValue()
-                    .stream()
-                    .filter(cell -> entry.getKey().equals(String.valueOf(cell.getIdentity().charAt(0))))
-                    .noneMatch(cell -> cell.getEffectiveValue().getValue().toString().equals(entry.getValue())));
+    private void filterRowsList(Map<String, Set<String>> colToSelectedValues, List<Map.Entry<Integer, List<Cell>>> rowsList) {
+
+        for (Map.Entry<String, Set<String>> colToValuesEntry : colToSelectedValues.entrySet()) {
+            // שימוש ב־Iterator כדי להסיר את השורות בצורה בטוחה
+            Iterator<Map.Entry<Integer, List<Cell>>> rowIterator = rowsList.iterator();
+            while (rowIterator.hasNext()) {
+                Map.Entry<Integer, List<Cell>> rowEntry = rowIterator.next();
+                boolean isRowRemoved = rowEntry.getValue().stream()
+                        .filter(cell -> colToValuesEntry.getKey().equals(String.valueOf(cell.getIdentity().charAt(0))))
+                        .noneMatch(cell -> colToValuesEntry.getValue().contains(cell.getEffectiveValue().getValue().toString()));
+
+                // אם השורה לא עומדת בתנאים, נסיר אותה באמצעות ה־Iterator
+                if (isRowRemoved) {
+                    rowIterator.remove();
+                }
+            }
         }
+
     }
 
 
     @Override
-    public DTO getFilteredSheetDTO(Map<String, String> colToSelectedValues, String topLeft, String bottomRight) {
+    public DTO getFilteredSheetDTO(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight) {
         int topLeftRow = Cell.getRowFromCellID(topLeft);
         int topLeftCol = Cell.getColumnFromCellID(topLeft);
         int bottomRightRow = Cell.getRowFromCellID(bottomRight);
@@ -401,7 +427,7 @@ public class EngineImpl implements Engine {
 
         List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
         filterRowsList(colToSelectedValues, rowsList);
-        Sheet filteredSheet = createModifiedSheet(topLeftRow, rowsList, topLeftCol);
+        Sheet filteredSheet = createModifiedSheet(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, rowsList);
         return DTOFactory.createSheetDTO(filteredSheet);
     }
 

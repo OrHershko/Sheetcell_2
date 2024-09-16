@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -25,9 +26,6 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
 //    private ChoiceBox<String> valuesChoiceBox;
 
     @FXML
-    private ListView<String> valuesChoiceBox;
-
-    @FXML
     private Button addFilterColumnButton;
 
     @FXML
@@ -44,6 +42,11 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
 
     private List<ListView<String>> addedValues = new ArrayList<>();
 
+    @FXML
+    void initialize() {
+        valuesListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+    }
+
 
     @Override
     public void setGetRangePopUpController(GetRangePopUpController getRangePopUpController) {
@@ -55,12 +58,11 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
     public void setChoiceBox(ChoiceBox<String> choiceBox) {
         this.columnsChoiceBox.setItems(choiceBox.getItems());
         this.columnsChoiceBox.setValue("Column");
-        this.valuesChoiceBox.setValue("Value");
 
-        addListenerToColumnsChoiceBox(columnsChoiceBox, valuesChoiceBox);
+        addListenerToColumnsChoiceBox(columnsChoiceBox, valuesListView);
     }
 
-    private void addListenerToColumnsChoiceBox(ChoiceBox<String> columns , ChoiceBox<String> values) {
+    private void addListenerToColumnsChoiceBox(ChoiceBox<String> columns , ListView<String> values) {
         columns.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Set<String> valuesInCol = getRangePopUpController.getValuesFromColumn(newValue.replace("Column ", "").trim());
@@ -77,17 +79,19 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
         newChoiceBox.setValue("Column");
         addedColumns.add(newChoiceBox);
         newChoiceBox.getItems().addAll(columnsChoiceBox.getItems());
-        ChoiceBox<String> newValueChoiceBox = new ChoiceBox<>();
-        newValueChoiceBox.setValue("Value");
-        newValueChoiceBox.setMinWidth(90);
-        newValueChoiceBox.setPrefWidth(90);
-        addedValues.add(newValueChoiceBox);
-        valuesChoiceBox.minWidthProperty().bind(newChoiceBox.widthProperty());
-        addListenerToColumnsChoiceBox(newChoiceBox, newValueChoiceBox);
+        ListView<String> newValueListView = new ListView<>();
+        newValueListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        newValueListView.setMinWidth(Region.USE_PREF_SIZE);
+        newValueListView.setPrefWidth(200);
+        newValueListView.setMinHeight(Region.USE_PREF_SIZE);
+        newValueListView.setPrefHeight(100);
+        addedValues.add(newValueListView);
+        valuesListView.minWidthProperty().bind(newChoiceBox.widthProperty());
+        addListenerToColumnsChoiceBox(newChoiceBox, newValueListView);
 
         HBox newHBox = new HBox(10);
         Label newLabel = new Label("Then by:");
-        newHBox.getChildren().addAll(newLabel, newChoiceBox, newValueChoiceBox);
+        newHBox.getChildren().addAll(newLabel, newChoiceBox, newValueListView);
         Insets padding = new Insets(10.0, 10.0, 10.0, 10.0);
         newHBox.setPadding(padding);
 
@@ -98,14 +102,35 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
 
     @FXML
     private void filterOnClick(){
-        Map<String, String> colToSelectedValues = new HashMap<>();
+        Map<String, Set<String>> colToSelectedValues = new HashMap<>();
 
-        colToSelectedValues.put(columnsChoiceBox.getValue().replace("Column ", "").trim(), valuesChoiceBox.getValue());
+        colToSelectedValues.put(columnsChoiceBox.getValue().replace("Column ", "").trim(),
+                new HashSet<>(valuesListView.getSelectionModel().getSelectedItems()));
 
         for (int i = 0; i < addedColumns.size(); i++) {
-            colToSelectedValues.put(addedColumns.get(i).getValue(), addedValues.get(i).getValue());
+            colToSelectedValues.put(addedColumns.get(i).getValue().replace("Column ", "").trim(),
+                    new HashSet<>(addedValues.get(i).getSelectionModel().getSelectedItems()));
         }
 
         getRangePopUpController.filter(colToSelectedValues);
+
+//        List<Map<String, Set<String>>> filtersList = new ArrayList<>();
+//
+//        // הוספת הבחירות מהעמודה הראשית
+//        Map<String, Set<String>> primaryFilter = new HashMap<>();
+//        primaryFilter.put(columnsChoiceBox.getValue().replace("Column ", "").trim(),
+//                new HashSet<>(valuesListView.getSelectionModel().getSelectedItems()));
+//        filtersList.add(primaryFilter);
+//
+//        // הוספת הבחירות מהעמודות שנוספו
+//        for (int i = 0; i < addedColumns.size(); i++) {
+//            Map<String, Set<String>> additionalFilter = new HashMap<>();
+//            additionalFilter.put(addedColumns.get(i).getValue(),
+//                    new HashSet<>(addedValues.get(i).getSelectionModel().getSelectedItems()));
+//            filtersList.add(additionalFilter);
+//        }
+
+        // העברת כל רשימת המסננים ל־filter בפופאפ
+        //getRangePopUpController.filter(filtersList);
     }
 }

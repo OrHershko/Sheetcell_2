@@ -90,7 +90,7 @@ public class SortAndFilterController {
         return appController.getValuesFromColumn(column,topLeft,bottomRight);
     }
 
-    public void filter(Map<String, String> colToSelectedValues, String topLeft, String bottomRight) {
+    public void filter(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight) {
         appController.filter(colToSelectedValues,topLeft,bottomRight);
     }
 }

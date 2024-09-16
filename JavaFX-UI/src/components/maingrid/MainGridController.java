@@ -3,11 +3,14 @@ package components.maingrid;
 import components.maingrid.cell.CellComponentController;
 import dto.CellDTO;
 import dto.SheetDTO;
+import impl.cell.Cell;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import main.AppController;
 
 import java.io.IOException;
@@ -240,4 +243,6 @@ public class MainGridController {
             }
         }
     }
+
+
 }

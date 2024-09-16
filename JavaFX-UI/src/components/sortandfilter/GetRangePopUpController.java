@@ -135,7 +135,7 @@ public class GetRangePopUpController {
         return sortAndFilterController.getValuesFromColumn(column, topLeft, bottomRight);
     }
 
-    public void filter(Map<String, String> colToSelectedValues) {
+    public void filter(Map<String, Set<String>> colToSelectedValues) {
         sortAndFilterController.filter(colToSelectedValues, topLeft, bottomRight);
     }
 }

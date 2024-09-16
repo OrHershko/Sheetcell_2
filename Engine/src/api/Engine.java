@@ -25,5 +25,5 @@ public interface Engine {
     void deleteRangeFromSheet(String rangeName);
     DTO getSortedSheetDTO(List<String> columnToSortBy, String topLeft, String bottomRight);
     Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight);
-    DTO getFilteredSheetDTO(Map<String, String> colToSelectedValues, String topLeft, String bottomRight);
+    DTO getFilteredSheetDTO(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight);
 }
