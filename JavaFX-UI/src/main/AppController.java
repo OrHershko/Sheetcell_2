@@ -5,6 +5,7 @@ import api.CellValue;
 import api.DTO;
 import api.Engine;
 import components.actionline.ActionLineController;
+import components.bonuses.BonusesController;
 import components.commands.CommandsComponentController;
 import components.loadfile.LoadFileController;
 import components.maingrid.MainGridController;
@@ -21,6 +22,7 @@ import impl.cell.Cell;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -49,7 +51,7 @@ import static impl.cell.Cell.getRowFromCellID;
 public class AppController {
 
     @FXML
-    private BorderPane rootPane;
+    private ScrollPane rootPane;
 
     @FXML
     private HBox hBoxContainer;
@@ -96,6 +98,12 @@ public class AppController {
     @FXML
     private VersionsSelectorComponentController versionsSelectorComponentController;
 
+    @FXML
+    private HBox bonusesComponent;
+
+    @FXML
+    private BonusesController bonusesComponentController;
+
     private final Engine engine = new EngineImpl(new DTOFactoryImpl());
 
     private Stage sheetPopUpStage;  // משתנה סינגלטון עבור ה-Stage
@@ -104,7 +112,7 @@ public class AppController {
 
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         loadFileComponentController.setAppController(this);
         mainGridComponentController.setAppController(this);
         actionLineComponentController.setAppController(this);
@@ -112,6 +120,7 @@ public class AppController {
         rangesComponentController.setAppController(this);
         versionsSelectorComponentController.setAppController(this);
         sortAndFilterComponentController.setAppController(this);
+        bonusesComponentController.setAppController(this);
         try {
             sheetPopUpStage();
         } catch (IOException ignored) {
@@ -181,11 +190,11 @@ public class AppController {
     }
 
     public double getPrefRowHeight() {
-        return ((SheetDTO)engine.getSheetDTO()).getRowHeight();
+        return ((SheetDTO) engine.getSheetDTO()).getRowHeight();
     }
 
     public double getPrefColWidth() {
-        return ((SheetDTO)engine.getSheetDTO()).getColWidth();
+        return ((SheetDTO) engine.getSheetDTO()).getColWidth();
     }
 
     public void updateColumnAlignment(int columnIndex, String alignment) {
@@ -197,7 +206,7 @@ public class AppController {
     }
 
     public boolean checkIfRowExist(int rowIndex) {
-        return rowIndex <= ((SheetDTO)engine.getSheetDTO()).getNumOfRows() && rowIndex >= 1;
+        return rowIndex <= ((SheetDTO) engine.getSheetDTO()).getNumOfRows() && rowIndex >= 1;
     }
 
     public void setRowHeightInGrid(int rowIndex, int height) {
@@ -205,7 +214,7 @@ public class AppController {
     }
 
     public boolean checkIfColExist(int colIndex) {
-        return colIndex <= ((SheetDTO)engine.getSheetDTO()).getNumOfCols() && colIndex >= 1;
+        return colIndex <= ((SheetDTO) engine.getSheetDTO()).getNumOfCols() && colIndex >= 1;
     }
 
     public void setColWidthInGrid(int rowIndex, int width) {
@@ -284,24 +293,24 @@ public class AppController {
     }
 
     public boolean checkRangeOfCells(String topLeft, String bottomRight) {
-        return engine.isCellInBounds(Cell.getRowFromCellID(topLeft) - 1,Cell.getColumnFromCellID(topLeft) - 1)
-                && engine.isCellInBounds(Cell.getRowFromCellID(bottomRight) - 1,Cell.getColumnFromCellID(bottomRight) - 1);
+        return engine.isCellInBounds(Cell.getRowFromCellID(topLeft) - 1, Cell.getColumnFromCellID(topLeft) - 1)
+                && engine.isCellInBounds(Cell.getRowFromCellID(bottomRight) - 1, Cell.getColumnFromCellID(bottomRight) - 1);
     }
 
-    public void sortSheetByColumns(List<String> columnToSortBy, String topLeft, String bottomRight){
-    try {
-        sheetPopUpStage.titleProperty().unbind();
-        sheetPopUpStage.setTitle("Sorted Sheet");
-        SheetDTO sortedSheetDTO = (SheetDTO) engine.getSortedSheetDTO(columnToSortBy, topLeft, bottomRight);
-        displaySheetPopUp(sortedSheetDTO, topLeft, bottomRight);
-    }
-    catch (IOException ignored) {}
+    public void sortSheetByColumns(List<String> columnToSortBy, String topLeft, String bottomRight) {
+        try {
+            sheetPopUpStage.titleProperty().unbind();
+            sheetPopUpStage.setTitle("Sorted Sheet");
+            SheetDTO sortedSheetDTO = (SheetDTO) engine.getSortedSheetDTO(columnToSortBy, topLeft, bottomRight);
+            displaySheetPopUp(sortedSheetDTO, topLeft, bottomRight);
+        } catch (IOException ignored) {
+        }
 
     }
 
     public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight) {
 
-        return engine.getValuesFromColumn(column,topLeft,bottomRight);
+        return engine.getValuesFromColumn(column, topLeft, bottomRight);
     }
 
     public void filter(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight) {
@@ -310,8 +319,8 @@ public class AppController {
             sheetPopUpStage.setTitle("Filtered Sheet");
             SheetDTO filteredSheetDTO = (SheetDTO) engine.getFilteredSheetDTO(colToSelectedValues, topLeft, bottomRight);
             displaySheetPopUp(filteredSheetDTO, topLeft, bottomRight);
+        } catch (IOException ignored) {
         }
-        catch (IOException ignored) {}
 
     }
 
@@ -329,4 +338,29 @@ public class AppController {
             sheetPopUpStage.show();
         }
     }
+
+    public void applySkin(String skinName) {
+        Scene scene = rootPane.getScene();
+        ObservableList<String> stylesheets = scene.getStylesheets();
+        stylesheets.clear();
+        scene.getStylesheets().add(getClass().getResource("/components/maingrid/cell/CellComponent.css").toExternalForm());
+
+        // Clear any existing skin-specific classes
+        rootPane.getStyleClass().removeAll("dark-mode", "light-mode");
+
+        switch (skinName) {
+            case "dark":
+                stylesheets.add(getClass().getResource("/main/resources/styles/darkTheme.css").toExternalForm());
+                rootPane.getStyleClass().add("dark-mode"); // Add dark-mode class
+                break;
+            case "light":
+                stylesheets.add(getClass().getResource("/main/resources/styles/lightTheme.css").toExternalForm());
+                rootPane.getStyleClass().add("light-mode"); // Add light-mode class
+                break;
+            default:
+                stylesheets.add(getClass().getResource("/main/resources/styles/default.css").toExternalForm());
+                break;
+        }
+    }
+
 }

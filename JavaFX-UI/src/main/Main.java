@@ -20,8 +20,8 @@ public class Main extends Application {
         fxmlLoader.setLocation(location);
         Parent root = fxmlLoader.load(location.openStream());
 
-        Scene scene = new Scene(root,1100,600);
-        scene.getStylesheets().add(getClass().getResource("/components/maingrid/cell/CellComponent.css").toExternalForm());
+        Scene scene = new Scene(root,1200,700);
+        ((AppController)fxmlLoader.getController()).applySkin("default");
         primaryStage.setTitle("Shticell");
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -3,6 +3,12 @@
     -fx-border-width: 1px;
 }
 
+/* Border changes to white when dark mode is active */
+.dark-mode .grid-cell {
+    -fx-border-color: #c4c4c4;
+    -fx-border-width: 1px;
+}
+
 .grid-cell.edge {
     -fx-border-color: grey;
     -fx-border-width: 1px;
@@ -30,4 +36,17 @@
 
 .align-right {
     -fx-alignment: center-right;
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: #000000;
+    -fx-font-family: "Verdana";
+    -fx-font-size: 14px;
+}
+
+.dark-mode .label {
+    -fx-text-fill: #c4c4c4;
+    -fx-font-family: "Times New Roman";
+    -fx-font-size: 16px;
 }
