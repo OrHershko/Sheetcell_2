@@ -20,7 +20,7 @@ public class Main extends Application {
         fxmlLoader.setLocation(location);
         Parent root = fxmlLoader.load(location.openStream());
 
-        Scene scene = new Scene(root,1200,700);
+        Scene scene = new Scene(root,1150,600);
         ((AppController)fxmlLoader.getController()).applySkin("default");
         primaryStage.setTitle("Shticell");
         primaryStage.setScene(scene);
