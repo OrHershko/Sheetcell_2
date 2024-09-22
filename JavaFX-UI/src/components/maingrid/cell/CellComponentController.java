@@ -1,9 +1,13 @@
 package components.maingrid.cell;
 
 
+import components.bonuses.BonusesController;
 import dto.CellDTO;
+import javafx.animation.ScaleTransition;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.util.Duration;
 import main.AppController;
 
 public class CellComponentController {
@@ -38,9 +42,21 @@ public class CellComponentController {
 
     @FXML
     public void onMouseClicked() {
+        cellClickedAnimation();
         appController.displayCellDataOnActionLine(cell);
         appController.colorDependencies(cell.getCellsImDependentOn(),"DependentOn");
         appController.colorDependencies(cell.getCellsImInfluencing(),"Influencing");
+    }
+
+    private void cellClickedAnimation() {
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000), effectiveValue);
+        scaleTransition.setByX(1.5);
+        scaleTransition.setByY(1.5);
+        scaleTransition.setCycleCount(2);
+        scaleTransition.setAutoReverse(true);
+        if(BonusesController.animationsEnabledProperty.get())
+            scaleTransition.play();
+
     }
 
 

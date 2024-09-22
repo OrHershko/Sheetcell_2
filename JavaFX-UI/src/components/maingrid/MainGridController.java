@@ -1,9 +1,12 @@
 package components.maingrid;
 
+import components.bonuses.BonusesController;
 import components.maingrid.cell.CellComponentController;
 import dto.CellDTO;
 import dto.SheetDTO;
 import impl.cell.Cell;
+import javafx.animation.FadeTransition;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -11,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 import main.AppController;
 
 import java.io.IOException;
@@ -71,8 +75,19 @@ public class MainGridController {
 
             cell.setEffectiveValue(effectiveValueStr);
             cell.setCell(cellDTO);
+            applyFadeInAnimation(cell);
         }
 
+    }
+
+    private void applyFadeInAnimation(CellComponentController cell) {
+        FadeTransition fadeTransition = new FadeTransition();
+        fadeTransition.setNode(cell.getCellLabel());
+        fadeTransition.setDuration(Duration.millis(500));
+        fadeTransition.setFromValue(0);
+        fadeTransition.setToValue(1);
+        if(BonusesController.animationsEnabledProperty.get())
+            fadeTransition.play();
     }
 
     private CellComponentController createCell(String effectiveValue, int row, int column, boolean isDisable) throws IOException {
