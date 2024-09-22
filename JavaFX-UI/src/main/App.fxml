@@ -10,7 +10,7 @@
    <content>
       <BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
          <top>
-            <BorderPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="95.0" prefWidth="774.0" BorderPane.alignment="CENTER">
+            <BorderPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="95.0" prefWidth="774.0" BorderPane.alignment="TOP_LEFT">
                <left>
                   <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" prefWidth="774.0" BorderPane.alignment="CENTER">
                      <children>
