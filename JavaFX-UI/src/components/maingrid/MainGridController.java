@@ -83,7 +83,7 @@ public class MainGridController {
     private void applyFadeInAnimation(CellComponentController cell) {
         FadeTransition fadeTransition = new FadeTransition();
         fadeTransition.setNode(cell.getCellLabel());
-        fadeTransition.setDuration(Duration.millis(500));
+        fadeTransition.setDuration(Duration.millis(1000));
         fadeTransition.setFromValue(0);
         fadeTransition.setToValue(1);
         if(BonusesController.animationsEnabledProperty.get())

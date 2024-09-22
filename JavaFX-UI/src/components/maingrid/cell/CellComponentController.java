@@ -49,6 +49,8 @@ public class CellComponentController {
     }
 
     private void cellClickedAnimation() {
+        effectiveValue.setScaleX(1);
+        effectiveValue.setScaleY(1);
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000), effectiveValue);
         scaleTransition.setByX(1.5);
         scaleTransition.setByY(1.5);

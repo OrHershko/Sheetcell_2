@@ -7,6 +7,7 @@ import api.Engine;
 import components.actionline.ActionLineController;
 import components.bonuses.BonusesController;
 import components.commands.CommandsComponentController;
+import components.graph.GraphComponentController;
 import components.loadfile.LoadFileController;
 import components.maingrid.MainGridController;
 import components.maingrid.cell.CellComponentController;
@@ -19,6 +20,8 @@ import dto.RangeDTO;
 import dto.SheetDTO;
 import impl.EngineImpl;
 import impl.cell.Cell;
+import impl.cell.value.FunctionValue;
+import impl.cell.value.NumericValue;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -29,9 +32,9 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -104,6 +107,12 @@ public class AppController {
     @FXML
     private BonusesController bonusesComponentController;
 
+    @FXML
+    private Button graphComponent;
+
+    @FXML
+    private GraphComponentController graphComponentController;
+
     private final Engine engine = new EngineImpl(new DTOFactoryImpl());
 
     private Stage sheetPopUpStage;  // משתנה סינגלטון עבור ה-Stage
@@ -121,6 +130,7 @@ public class AppController {
         versionsSelectorComponentController.setAppController(this);
         sortAndFilterComponentController.setAppController(this);
         bonusesComponentController.setAppController(this);
+        graphComponentController.setAppController(this);
         try {
             sheetPopUpStage();
         } catch (IOException ignored) {
@@ -138,6 +148,7 @@ public class AppController {
                 rangesComponentController.disableButtons(false);
                 versionsSelectorComponentController.disable(false);
                 sortAndFilterComponentController.disableButtons(false);
+                graphComponentController.setDisable(false);
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -363,4 +374,26 @@ public class AppController {
         }
     }
 
+    public double getCellValue(int row, String col) {
+        CellDTO cell = (CellDTO) engine.getCellDTO(Cell.getCellIDFromRowCol(row,Cell.getColumnFromCellID(col)));
+        return Double.parseDouble(cell.getEffectiveValue().getValue().toString());
+    }
+
+    public int getNumOfColumnsInGrid() {
+        return engine.getNumOfColumnsInCurrSheet();
+    }
+
+    public void showDynamicCalculation(String selectedCellId, String orgValue) throws IOException {
+
+        CellValue newCellValue = EngineImpl.convertStringToCellValue(orgValue);
+        mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.DynamicCalculationOnSheet(selectedCellId, newCellValue, orgValue));
+    }
+
+    public void showCurrentSheetOnGrid() throws IOException {
+        mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
+    }
+
+    public boolean isCellValueNumeric(String cellId) {
+        return ((CellDTO)engine.getCellDTO(cellId)).getEffectiveValue() instanceof NumericValue;
+    }
 }

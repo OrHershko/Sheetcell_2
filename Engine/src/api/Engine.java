@@ -26,4 +26,6 @@ public interface Engine {
     DTO getSortedSheetDTO(List<String> columnToSortBy, String topLeft, String bottomRight);
     Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight);
     DTO getFilteredSheetDTO(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight);
+    int getNumOfColumnsInCurrSheet();
+    DTO DynamicCalculationOnSheet(String selectedCellId, CellValue newCellValue, String orgValue);
 }

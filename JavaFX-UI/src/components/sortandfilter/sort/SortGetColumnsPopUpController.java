@@ -32,6 +32,8 @@ public class SortGetColumnsPopUpController implements ColumnActionController {
     @FXML
     private Button sortButton;
 
+    private Stage currentPopupStage;
+
     private GetRangePopUpController getRangePopUpController;
 
     private List<ChoiceBox<String>> addedColumns = new ArrayList<>();
@@ -63,6 +65,10 @@ public class SortGetColumnsPopUpController implements ColumnActionController {
             columnToSortBy.add(column.getValue());
         }
 
+        if(currentPopupStage != null){
+            currentPopupStage.close();
+        }
+
         getRangePopUpController.sort(columnToSortBy);
     }
 
@@ -74,5 +80,10 @@ public class SortGetColumnsPopUpController implements ColumnActionController {
     @Override
     public void setGetRangePopUpController(GetRangePopUpController getRangePopUpController) {
         this.getRangePopUpController = getRangePopUpController;
+    }
+
+    @Override
+    public void setPopUpStage(Stage stage) {
+        currentPopupStage = stage;
     }
 }

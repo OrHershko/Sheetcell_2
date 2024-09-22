@@ -49,7 +49,7 @@ public class SortAndFilterController {
     }
 
     private void openGetRangeDialog(boolean isSorting) throws IOException {
-        // Load the FXML file for range input
+
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/components/sortandfilter/GetRangePopUp.fxml"));
         Parent root = fxmlLoader.load();
 
@@ -57,10 +57,10 @@ public class SortAndFilterController {
         controller.setSortingOperation(isSorting);
         controller.setSortAndFilterController(this);
 
-        // Create a new stage (window)
         Stage stage = new Stage();
+        controller.setPopUpStage(stage);
         stage.setTitle("Enter Range");
-        stage.setScene(new Scene(root, 400, 200)); // Adjust the scene size if needed
+        stage.setScene(new Scene(root, 400, 200));
         stage.show();
     }
 

@@ -431,5 +431,24 @@ public class EngineImpl implements Engine {
         return DTOFactory.createSheetDTO(filteredSheet);
     }
 
+    @Override
+    public int getNumOfColumnsInCurrSheet() {
+        return currentSheet.getNumOfCols();
+    }
 
+    @Override
+    public DTO DynamicCalculationOnSheet(String cellIdentity, CellValue value, String originalValue) {
+        Sheet alternativeSheet = currentSheet.clone();
+        List<Cell> topologicalOrder = alternativeSheet.sortActiveCellsTopologicallyByDFS();
+        alternativeSheet.updateOrCreateCell(cellIdentity, value, originalValue, false);
+        Cell updatedCell = alternativeSheet.getCell(cellIdentity);
+
+        if(!topologicalOrder.contains(updatedCell))
+            topologicalOrder.addLast(updatedCell);
+
+        alternativeSheet.recalculateByTopologicalOrder(topologicalOrder);
+        alternativeSheet.calculateChangedCells(updatedCell);
+
+        return DTOFactory.createSheetDTO(alternativeSheet);
+    }
 }

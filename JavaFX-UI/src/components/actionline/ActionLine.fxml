@@ -23,8 +23,9 @@
             <Label fx:id="selectedCellId" minWidth="-Infinity" text="Selected cell ID: " />
             <Label fx:id="originalCellValue" minWidth="-Infinity" text="Original cell value: " />
             <TextField fx:id="textField" minWidth="100.0" prefWidth="300.0" />
-            <Button fx:id="updateCellButton" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#updateCell" text="Update cell" />
+            <Button fx:id="updateCellButton" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#updateCell" text="Update Cell" />
             <Label fx:id="lastUpdateCellVersion" minWidth="-Infinity" text="Last update cell version: " />
+            <Button fx:id="dynamicCalculationButton" mnemonicParsing="false" onMouseClicked="#dynamicCalculationOnClick" text="Dynamic Calculation" />
          </children>
       </HBox>
    </children>

@@ -27,6 +27,9 @@ public class GetRangePopUpController {
     @FXML
     private Label operationLabel;
 
+    private Stage currentPopupStage;
+
+
     private SortAndFilterController sortAndFilterController;
     private String topLeft;
     private String bottomRight;
@@ -85,10 +88,14 @@ public class GetRangePopUpController {
             controller.setGetRangePopUpController(this);
             controller.setChoiceBox(createChoiceBox(topLeft, bottomRight));
 
-            // Create a new stage (window)
             Stage stage = new Stage();
+            controller.setPopUpStage(stage);
             stage.setTitle(title);
-            stage.setScene(new Scene(root)); // Adjust the scene size if needed
+            stage.setScene(new Scene(root));
+
+            if(currentPopupStage != null) {
+                currentPopupStage.close();
+            }
             stage.show();
             stage.sizeToScene();
         } catch (Exception e) {
@@ -137,5 +144,9 @@ public class GetRangePopUpController {
 
     public void filter(Map<String, Set<String>> colToSelectedValues) {
         sortAndFilterController.filter(colToSelectedValues, topLeft, bottomRight);
+    }
+
+    public void setPopUpStage(Stage stage) {
+        currentPopupStage = stage;
     }
 }

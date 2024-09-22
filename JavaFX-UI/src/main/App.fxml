@@ -28,11 +28,12 @@
             </BorderPane>
          </top>
          <left>
-            <VBox minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER">
+            <VBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER">
                <children>
                   <fx:include fx:id="commandsComponent" source="../components/commands/CommandsComponent.fxml" />
                   <fx:include fx:id="rangesComponent" source="../components/ranges/Ranges.fxml" />
                   <fx:include fx:id="sortAndFilterComponent" source="../components/sortandfilter/SortAndFilter.fxml" />
+                  <fx:include fx:id="graphComponent" source="../components/graph/GraphComponent.fxml" />
                </children>
                <BorderPane.margin>
                   <Insets top="40.0" />

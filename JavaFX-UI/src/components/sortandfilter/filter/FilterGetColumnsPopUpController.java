@@ -22,20 +22,18 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
     @FXML
     private ChoiceBox<String> columnsChoiceBox;
 
-//    @FXML
-//    private ChoiceBox<String> valuesChoiceBox;
-
     @FXML
     private Button addFilterColumnButton;
 
     @FXML
     private Button filterButton;
 
+    private Stage currentPopupStage;
+
+
     private GetRangePopUpController getRangePopUpController;
 
     private List<ChoiceBox<String>> addedColumns = new ArrayList<>();
-
-    //private List<ChoiceBox<String>> addedValues = new ArrayList<>();
 
     @FXML
     private ListView<String> valuesListView;
@@ -47,6 +45,11 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
         valuesListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
+
+    @Override
+    public void setPopUpStage(Stage stage) {
+        currentPopupStage = stage;
+    }
 
     @Override
     public void setGetRangePopUpController(GetRangePopUpController getRangePopUpController) {
@@ -112,25 +115,10 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
                     new HashSet<>(addedValues.get(i).getSelectionModel().getSelectedItems()));
         }
 
+        if(currentPopupStage != null) {
+            currentPopupStage.close();
+        }
+
         getRangePopUpController.filter(colToSelectedValues);
-
-//        List<Map<String, Set<String>>> filtersList = new ArrayList<>();
-//
-//        // הוספת הבחירות מהעמודה הראשית
-//        Map<String, Set<String>> primaryFilter = new HashMap<>();
-//        primaryFilter.put(columnsChoiceBox.getValue().replace("Column ", "").trim(),
-//                new HashSet<>(valuesListView.getSelectionModel().getSelectedItems()));
-//        filtersList.add(primaryFilter);
-//
-//        // הוספת הבחירות מהעמודות שנוספו
-//        for (int i = 0; i < addedColumns.size(); i++) {
-//            Map<String, Set<String>> additionalFilter = new HashMap<>();
-//            additionalFilter.put(addedColumns.get(i).getValue(),
-//                    new HashSet<>(addedValues.get(i).getSelectionModel().getSelectedItems()));
-//            filtersList.add(additionalFilter);
-//        }
-
-        // העברת כל רשימת המסננים ל־filter בפופאפ
-        //getRangePopUpController.filter(filtersList);
     }
 }
