@@ -1,7 +1,6 @@
 package components.actionline;
 
 import dto.CellDTO;
-import impl.cell.Cell;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

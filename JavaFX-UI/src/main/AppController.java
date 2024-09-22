@@ -314,7 +314,11 @@ public class AppController {
             sheetPopUpStage.setTitle("Sorted Sheet");
             SheetDTO sortedSheetDTO = (SheetDTO) engine.getSortedSheetDTO(columnToSortBy, topLeft, bottomRight);
             displaySheetPopUp(sortedSheetDTO, topLeft, bottomRight);
-        } catch (IOException ignored) {
+        }
+        catch (IOException ignored) {
+        }
+        catch (NumberFormatException e){
+            showErrorDialog("Error", e.getMessage());
         }
 
     }

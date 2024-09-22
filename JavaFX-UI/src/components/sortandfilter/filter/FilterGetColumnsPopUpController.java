@@ -115,10 +115,10 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
                     new HashSet<>(addedValues.get(i).getSelectionModel().getSelectedItems()));
         }
 
+        getRangePopUpController.filter(colToSelectedValues);
+
         if(currentPopupStage != null) {
             currentPopupStage.close();
         }
-
-        getRangePopUpController.filter(colToSelectedValues);
     }
 }

@@ -11,6 +11,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import main.AppController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,11 +66,16 @@ public class SortGetColumnsPopUpController implements ColumnActionController {
             columnToSortBy.add(column.getValue());
         }
 
+        try {
+            getRangePopUpController.sort(columnToSortBy);
+        }
+        catch (Exception e) {
+            AppController.showErrorDialog("Error", "Make sure the range provided contains only numeric values.");
+        }
+
         if(currentPopupStage != null){
             currentPopupStage.close();
         }
-
-        getRangePopUpController.sort(columnToSortBy);
     }
 
     @Override

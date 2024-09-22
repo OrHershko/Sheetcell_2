@@ -304,30 +304,36 @@ public class EngineImpl implements Engine {
         int bottomRightRow = Cell.getRowFromCellID(bottomRight);
         int bottomRightCol = Cell.getColumnFromCellID(bottomRight);
 
-        List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
-        sortRowsList(columnsToSortBy, rowsList, topLeftCol);
-        Sheet sortedSheet = createModifiedSheet(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, rowsList);
-        return DTOFactory.createSheetDTO(sortedSheet);
+        try {
+            List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
+            sortRowsList(columnsToSortBy, rowsList, topLeftCol);
+            Sheet sortedSheet = createModifiedSheet(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, rowsList);
+            return DTOFactory.createSheetDTO(sortedSheet);
+        }
+        catch (IndexOutOfBoundsException e) {
+            throw new IndexOutOfBoundsException("Make sure the range provided contains only numeric values.");
+        }
+
     }
 
     private void sortRowsList(List<String> columnsToSortBy, List<Map.Entry<Integer, List<Cell>>> rowsList, int topLeftCol) {
 
         for (int i = columnsToSortBy.size() - 1; i >= 0; i--) {
             String columnToSortBy = columnsToSortBy.get(i).replace("Column ", "").trim();
-            int colToSortBy = Cell.getColumnFromCellID(columnToSortBy + "1"); // Get column index
+            int colToSortBy = Cell.getColumnFromCellID(columnToSortBy + "1");
 
             rowsList.sort((entry1, entry2) -> {
                 Cell cell1 = entry1.getValue().get(colToSortBy - topLeftCol);
                 Cell cell2 = entry2.getValue().get(colToSortBy - topLeftCol);
 
-                Comparable value1 = (Comparable) cell1.getEffectiveValue().getValue();
-                Comparable value2 = (Comparable) cell2.getEffectiveValue().getValue();
-
-                if (value1 == null && value2 == null) return 0;
-                if (value1 == null) return 1;
-                if (value2 == null) return -1;
-
-                return value1.compareTo(value2);
+                try {
+                    Double value1 = Double.valueOf((String) cell1.getEffectiveValue().getValue());
+                    Double value2 = Double.valueOf((String) cell2.getEffectiveValue().getValue());
+                    return value1.compareTo(value2);
+                }
+                catch (NumberFormatException e) {
+                    throw new NumberFormatException("Make sure the range provided contains only numeric values.");
+                }
             });
         }
     }
