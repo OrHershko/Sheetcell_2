@@ -133,7 +133,8 @@ public class AppController {
         graphComponentController.setAppController(this);
         try {
             sheetPopUpStage();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -276,7 +277,7 @@ public class AppController {
 
     private void sheetPopUpStage() throws IOException {
         if (sheetPopUpStage == null) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/maingrid/mainGrid.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/maingrid/MainGrid.fxml"));
             Parent root = loader.load();
             MainGridController controller = loader.getController();
             controller.setAppController(this);
@@ -286,9 +287,7 @@ public class AppController {
             scrollPane.setFitToWidth(true);
 
             sheetPopUpStage = new Stage();
-//            sheetPopUpStage.titleProperty().bind(
-//                    currentPreviousVersion.asString("Previous Sheet Version - Version %d")
-//            );
+
             sheetPopUpStage.initModality(Modality.APPLICATION_MODAL);
             Scene scene = new Scene(scrollPane);
             scene.getStylesheets().add(getClass().getResource("/components/maingrid/cell/CellComponent.css").toExternalForm());
